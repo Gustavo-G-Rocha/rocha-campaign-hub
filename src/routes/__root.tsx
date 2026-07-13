@@ -89,10 +89,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         property: "og:description",
         content:
-          "Juntos por um futuro melhor. Seja voluntário, participe dos eventos e apoie os abaixo-assinados.",
+          "Willian Rocha, pré-candidato a Deputado Estadual. Seja voluntário, participe dos eventos e apoie os abaixo-assinados da campanha.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Willian Rocha — Pré-candidato a Deputado Estadual" },
+      { name: "twitter:description", content: "Willian Rocha, pré-candidato a Deputado Estadual. Seja voluntário, participe dos eventos e apoie os abaixo-assinados da campanha." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8db75f78-1453-4691-9b75-835e6c634664/id-preview-6a5ae4c2--cd0ee914-fb9d-484e-be68-2b784414de13.lovable.app-1783973487116.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8db75f78-1453-4691-9b75-835e6c634664/id-preview-6a5ae4c2--cd0ee914-fb9d-484e-be68-2b784414de13.lovable.app-1783973487116.png" },
     ],
     links: [
       {
