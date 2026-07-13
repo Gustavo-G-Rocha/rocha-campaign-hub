@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VoluntariosRouteImport } from './routes/voluntarios'
 import { Route as EventosRouteImport } from './routes/eventos'
+import { Route as AbaixoAssinadosRouteImport } from './routes/abaixo-assinados'
 import { Route as IndexRouteImport } from './routes/index'
 
 const VoluntariosRoute = VoluntariosRouteImport.update({
@@ -23,6 +24,11 @@ const EventosRoute = EventosRouteImport.update({
   path: '/eventos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AbaixoAssinadosRoute = AbaixoAssinadosRouteImport.update({
+  id: '/abaixo-assinados',
+  path: '/abaixo-assinados',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -31,30 +37,34 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/abaixo-assinados': typeof AbaixoAssinadosRoute
   '/eventos': typeof EventosRoute
   '/voluntarios': typeof VoluntariosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/abaixo-assinados': typeof AbaixoAssinadosRoute
   '/eventos': typeof EventosRoute
   '/voluntarios': typeof VoluntariosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/abaixo-assinados': typeof AbaixoAssinadosRoute
   '/eventos': typeof EventosRoute
   '/voluntarios': typeof VoluntariosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/eventos' | '/voluntarios'
+  fullPaths: '/' | '/abaixo-assinados' | '/eventos' | '/voluntarios'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/eventos' | '/voluntarios'
-  id: '__root__' | '/' | '/eventos' | '/voluntarios'
+  to: '/' | '/abaixo-assinados' | '/eventos' | '/voluntarios'
+  id: '__root__' | '/' | '/abaixo-assinados' | '/eventos' | '/voluntarios'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AbaixoAssinadosRoute: typeof AbaixoAssinadosRoute
   EventosRoute: typeof EventosRoute
   VoluntariosRoute: typeof VoluntariosRoute
 }
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/abaixo-assinados': {
+      id: '/abaixo-assinados'
+      path: '/abaixo-assinados'
+      fullPath: '/abaixo-assinados'
+      preLoaderRoute: typeof AbaixoAssinadosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AbaixoAssinadosRoute: AbaixoAssinadosRoute,
   EventosRoute: EventosRoute,
   VoluntariosRoute: VoluntariosRoute,
 }
