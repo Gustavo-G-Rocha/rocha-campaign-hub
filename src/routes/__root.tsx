@@ -95,8 +95,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Willian Rocha — Pré-candidato a Deputado Estadual" },
       { name: "twitter:description", content: "Willian Rocha, pré-candidato a Deputado Estadual. Seja voluntário, participe dos eventos e apoie os abaixo-assinados da campanha." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8db75f78-1453-4691-9b75-835e6c634664/id-preview-6a5ae4c2--cd0ee914-fb9d-484e-be68-2b784414de13.lovable.app-1783973487116.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8db75f78-1453-4691-9b75-835e6c634664/id-preview-6a5ae4c2--cd0ee914-fb9d-484e-be68-2b784414de13.lovable.app-1783973487116.png" },
+      { property: "og:image", content: "/og-image.jpg" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { name: "twitter:image", content: "/og-image.jpg" },
     ],
     links: [
       {
@@ -104,6 +106,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
+      { rel: "manifest", href: "/site.webmanifest" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       {
         rel: "preconnect",

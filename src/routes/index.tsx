@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Users, Calendar, FileSignature, Heart, ShieldCheck, Megaphone } from "lucide-react";
+import { ArrowRight, Users, Calendar, FileSignature } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { siteConfig } from "@/lib/site-config";
 import heroImg from "@/assets/willian-hero.png";
@@ -8,24 +8,6 @@ import heroBg from "@/assets/hero-bg.jpg";
 export const Route = createFileRoute("/")({
   component: Index,
 });
-
-const propostas = [
-  {
-    icon: ShieldCheck,
-    titulo: "Segurança",
-    texto: "Mais policiamento, iluminação e presença do Estado nos bairros.",
-  },
-  {
-    icon: Heart,
-    titulo: "Saúde",
-    texto: "Postos de saúde equipados e redução das filas de espera.",
-  },
-  {
-    icon: Megaphone,
-    titulo: "Educação",
-    texto: "Valorização dos profissionais e escolas de qualidade para todos.",
-  },
-];
 
 function Index() {
   return (
@@ -37,7 +19,6 @@ function Index() {
           backgroundImage: `url(${heroBg})`,
           backgroundSize: "cover",
           backgroundPosition: "center top",
-          backgroundBlendMode: "lighten",
         }}
       >
         <div className="mx-auto grid max-w-6xl items-end gap-6 px-4 pt-12 md:grid-cols-2 md:pt-20">
@@ -121,25 +102,6 @@ function Index() {
         </div>
       </section>
 
-      {/* PROPOSTAS */}
-      <section className="bg-muted/40 py-16">
-        <div className="mx-auto max-w-6xl px-4">
-          <h2 className="text-center font-display text-3xl uppercase text-brand-dark md:text-4xl">
-            Nossas prioridades
-          </h2>
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {propostas.map((p) => (
-              <div key={p.titulo} className="rounded-lg border bg-card p-6">
-                <p.icon className="h-8 w-8 text-brand-yellow" />
-                <h3 className="mt-4 font-display text-xl uppercase text-brand-dark">
-                  {p.titulo}
-                </h3>
-                <p className="mt-2 text-sm text-muted-foreground">{p.texto}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
     </SiteLayout>
   );
 }

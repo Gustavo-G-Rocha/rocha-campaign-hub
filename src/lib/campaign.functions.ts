@@ -6,6 +6,7 @@ import { z } from "zod";
 // ----------------------------------------------------------------
 export type EventItem = {
   id: number;
+  slug: string;
   titulo: string;
   descricao: string | null;
   local: string | null;
@@ -30,22 +31,23 @@ export type PetitionItem = {
 const demoEvents: EventItem[] = [
   {
     id: 1,
+    slug: "caminhada-pela-mudanca",
     titulo: "Caminhada pela Mudança",
-    descricao:
-      "Venha caminhar conosco e conversar sobre as propostas para a nossa região.",
+    descricao: "Venha caminhar conosco e conversar sobre as propostas para a nossa região.",
     local: "Praça Central",
     cidade: "Curitiba",
     data_evento: new Date(Date.now() + 10 * 864e5).toISOString(),
-    imagem_url: null,
+    imagem_url: "https://picsum.photos/seed/caminhada-pela-mudanca/1600/900",
   },
   {
     id: 2,
+    slug: "reuniao-com-liderancas",
     titulo: "Reunião com Lideranças",
     descricao: "Encontro aberto para ouvir as demandas da comunidade.",
     local: "Centro Comunitário",
     cidade: "Londrina",
     data_evento: new Date(Date.now() + 20 * 864e5).toISOString(),
-    imagem_url: null,
+    imagem_url: "https://picsum.photos/seed/reuniao-com-liderancas/1600/900",
   },
 ];
 
@@ -54,20 +56,18 @@ const demoPetitions: PetitionItem[] = [
     id: 1,
     slug: "mais-seguranca",
     titulo: "Mais Segurança nos Bairros",
-    descricao:
-      "Assine pela ampliação do policiamento e iluminação pública nos bairros do estado.",
+    descricao: "Assine pela ampliação do policiamento e iluminação pública nos bairros do estado.",
     meta: 5000,
-    imagem_url: null,
+    imagem_url: "https://picsum.photos/seed/mais-seguranca/1600/900",
     assinaturas: 1240,
   },
   {
     id: 2,
     slug: "saude-para-todos",
     titulo: "Saúde Pública de Qualidade",
-    descricao:
-      "Apoie a melhoria dos postos de saúde e a redução das filas de espera.",
+    descricao: "Apoie a melhoria dos postos de saúde e a redução das filas de espera.",
     meta: 3000,
-    imagem_url: null,
+    imagem_url: "https://picsum.photos/seed/saude-para-todos/1600/900",
     assinaturas: 870,
   },
 ];
@@ -109,7 +109,7 @@ export const getEvents = createServerFn({ method: "GET" }).handler(
     if (!hasDatabase()) return demoEvents;
     const sql = getSql();
     const rows = await sql<EventItem[]>`
-      SELECT id, titulo, descricao, local, cidade, data_evento, imagem_url
+      SELECT id, slug, titulo, descricao, local, cidade, data_evento, imagem_url
       FROM events
       ORDER BY data_evento ASC
     `;
@@ -119,6 +119,26 @@ export const getEvents = createServerFn({ method: "GET" }).handler(
     }));
   },
 );
+
+const eventBySlugSchema = z.object({ slug: z.string().min(1) });
+
+export const getEventBySlug = createServerFn({ method: "GET" })
+  .inputValidator((data: unknown) => eventBySlugSchema.parse(data))
+  .handler(async ({ data }): Promise<EventItem | null> => {
+    const { hasDatabase, getSql } = await import("./db.server");
+    if (!hasDatabase()) {
+      return demoEvents.find((e) => e.slug === data.slug) ?? null;
+    }
+    const sql = getSql();
+    const rows = await sql<EventItem[]>`
+      SELECT id, slug, titulo, descricao, local, cidade, data_evento, imagem_url
+      FROM events
+      WHERE slug = ${data.slug}
+      LIMIT 1
+    `;
+    if (rows.length === 0) return null;
+    return { ...rows[0], data_evento: new Date(rows[0].data_evento).toISOString() };
+  });
 
 // ----------------------------------------------------------------
 // Abaixo-assinados
@@ -141,11 +161,34 @@ export const getPetitions = createServerFn({ method: "GET" }).handler(
   },
 );
 
+const petitionBySlugSchema = z.object({ slug: z.string().min(1) });
+
+export const getPetitionBySlug = createServerFn({ method: "GET" })
+  .inputValidator((data: unknown) => petitionBySlugSchema.parse(data))
+  .handler(async ({ data }): Promise<PetitionItem | null> => {
+    const { hasDatabase, getSql } = await import("./db.server");
+    if (!hasDatabase()) {
+      return demoPetitions.find((p) => p.slug === data.slug) ?? null;
+    }
+    const sql = getSql();
+    const rows = await sql<PetitionItem[]>`
+      SELECT p.id, p.slug, p.titulo, p.descricao, p.meta, p.imagem_url,
+             COUNT(s.id)::int AS assinaturas
+      FROM petitions p
+      LEFT JOIN petition_signatures s ON s.petition_id = p.id
+      WHERE p.slug = ${data.slug} AND p.ativo = TRUE
+      GROUP BY p.id
+      LIMIT 1
+    `;
+    return rows[0] ?? null;
+  });
+
 const signSchema = z.object({
   slug: z.string().min(1),
   nome: z.string().min(2, "Informe seu nome"),
-  email: z.string().email("E-mail inválido").optional().or(z.literal("")),
-  cidade: z.string().optional().or(z.literal("")),
+  cidade: z.string().min(2, "Informe sua cidade"),
+  estado: z.string().length(2, "Selecione o estado"),
+  telefone: z.string().min(8, "Informe um telefone válido"),
 });
 
 export const signPetition = createServerFn({ method: "POST" })
@@ -164,8 +207,8 @@ export const signPetition = createServerFn({ method: "POST" })
     }
     try {
       await sql`
-        INSERT INTO petition_signatures (petition_id, nome, email, cidade)
-        VALUES (${petition[0].id}, ${data.nome}, ${data.email || null}, ${data.cidade || null})
+        INSERT INTO petition_signatures (petition_id, nome, cidade, estado, telefone)
+        VALUES (${petition[0].id}, ${data.nome}, ${data.cidade}, ${data.estado}, ${data.telefone})
       `;
     } catch {
       return { ok: false as const, error: "Você já assinou este abaixo-assinado" };

@@ -25,6 +25,7 @@ CREATE INDEX IF NOT EXISTS idx_volunteers_created_at ON volunteers (created_at D
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS events (
   id          SERIAL PRIMARY KEY,
+  slug        TEXT NOT NULL UNIQUE,
   titulo      TEXT NOT NULL,
   descricao   TEXT,
   local       TEXT,
@@ -54,10 +55,11 @@ CREATE TABLE IF NOT EXISTS petition_signatures (
   id          SERIAL PRIMARY KEY,
   petition_id INTEGER NOT NULL REFERENCES petitions (id) ON DELETE CASCADE,
   nome        TEXT NOT NULL,
-  email       TEXT,
-  cidade      TEXT,
+  cidade      TEXT NOT NULL,
+  estado      TEXT NOT NULL,
+  telefone    TEXT NOT NULL,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
-  UNIQUE (petition_id, email)
+  UNIQUE (petition_id, telefone)
 );
 
 CREATE INDEX IF NOT EXISTS idx_signatures_petition ON petition_signatures (petition_id);
@@ -65,14 +67,14 @@ CREATE INDEX IF NOT EXISTS idx_signatures_petition ON petition_signatures (petit
 -- ------------------------------------------------------------
 -- Dados de exemplo (opcional) — remova em produção se quiser
 -- ------------------------------------------------------------
-INSERT INTO events (titulo, descricao, local, cidade, data_evento)
+INSERT INTO events (slug, titulo, descricao, local, cidade, data_evento, imagem_url)
 VALUES
-  ('Caminhada pela Mudança', 'Venha caminhar conosco e conversar sobre as propostas para a nossa região.', 'Praça Central', 'Curitiba', now() + interval '10 days'),
-  ('Reunião com Lideranças', 'Encontro aberto para ouvir as demandas da comunidade.', 'Centro Comunitário', 'Londrina', now() + interval '20 days')
-ON CONFLICT DO NOTHING;
+  ('caminhada-pela-mudanca', 'Caminhada pela Mudança', 'Venha caminhar conosco e conversar sobre as propostas para a nossa região.', 'Praça Central', 'Curitiba', now() + interval '10 days', 'https://picsum.photos/seed/caminhada-pela-mudanca/1600/900'),
+  ('reuniao-com-liderancas', 'Reunião com Lideranças', 'Encontro aberto para ouvir as demandas da comunidade.', 'Centro Comunitário', 'Londrina', now() + interval '20 days', 'https://picsum.photos/seed/reuniao-com-liderancas/1600/900')
+ON CONFLICT (slug) DO NOTHING;
 
-INSERT INTO petitions (slug, titulo, descricao, meta)
+INSERT INTO petitions (slug, titulo, descricao, meta, imagem_url)
 VALUES
-  ('mais-seguranca', 'Mais Segurança nos Bairros', 'Assine pela ampliação do policiamento e iluminação pública nos bairros do estado.', 5000),
-  ('saude-para-todos', 'Saúde Pública de Qualidade', 'Apoie a melhoria dos postos de saúde e a redução das filas de espera.', 3000)
+  ('mais-seguranca', 'Mais Segurança nos Bairros', 'Assine pela ampliação do policiamento e iluminação pública nos bairros do estado.', 5000, 'https://picsum.photos/seed/mais-seguranca/1600/900'),
+  ('saude-para-todos', 'Saúde Pública de Qualidade', 'Apoie a melhoria dos postos de saúde e a redução das filas de espera.', 3000, 'https://picsum.photos/seed/saude-para-todos/1600/900')
 ON CONFLICT (slug) DO NOTHING;

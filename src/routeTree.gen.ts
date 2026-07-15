@@ -10,23 +10,27 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VoluntariosRouteImport } from './routes/voluntarios'
-import { Route as EventosRouteImport } from './routes/eventos'
-import { Route as AbaixoAssinadosRouteImport } from './routes/abaixo-assinados'
+import { Route as LgpdRouteImport } from './routes/lgpd'
+import { Route as DoarRouteImport } from './routes/doar'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EventosIndexRouteImport } from './routes/eventos/index'
+import { Route as AbaixoAssinadosIndexRouteImport } from './routes/abaixo-assinados/index'
+import { Route as EventosSlugRouteImport } from './routes/eventos/$slug'
+import { Route as AbaixoAssinadosSlugRouteImport } from './routes/abaixo-assinados/$slug'
 
 const VoluntariosRoute = VoluntariosRouteImport.update({
   id: '/voluntarios',
   path: '/voluntarios',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EventosRoute = EventosRouteImport.update({
-  id: '/eventos',
-  path: '/eventos',
+const LgpdRoute = LgpdRouteImport.update({
+  id: '/lgpd',
+  path: '/lgpd',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AbaixoAssinadosRoute = AbaixoAssinadosRouteImport.update({
-  id: '/abaixo-assinados',
-  path: '/abaixo-assinados',
+const DoarRoute = DoarRouteImport.update({
+  id: '/doar',
+  path: '/doar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -34,39 +38,100 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EventosIndexRoute = EventosIndexRouteImport.update({
+  id: '/eventos/',
+  path: '/eventos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AbaixoAssinadosIndexRoute = AbaixoAssinadosIndexRouteImport.update({
+  id: '/abaixo-assinados/',
+  path: '/abaixo-assinados/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventosSlugRoute = EventosSlugRouteImport.update({
+  id: '/eventos/$slug',
+  path: '/eventos/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AbaixoAssinadosSlugRoute = AbaixoAssinadosSlugRouteImport.update({
+  id: '/abaixo-assinados/$slug',
+  path: '/abaixo-assinados/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/abaixo-assinados': typeof AbaixoAssinadosRoute
-  '/eventos': typeof EventosRoute
+  '/doar': typeof DoarRoute
+  '/lgpd': typeof LgpdRoute
   '/voluntarios': typeof VoluntariosRoute
+  '/abaixo-assinados/$slug': typeof AbaixoAssinadosSlugRoute
+  '/eventos/$slug': typeof EventosSlugRoute
+  '/abaixo-assinados/': typeof AbaixoAssinadosIndexRoute
+  '/eventos/': typeof EventosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/abaixo-assinados': typeof AbaixoAssinadosRoute
-  '/eventos': typeof EventosRoute
+  '/doar': typeof DoarRoute
+  '/lgpd': typeof LgpdRoute
   '/voluntarios': typeof VoluntariosRoute
+  '/abaixo-assinados/$slug': typeof AbaixoAssinadosSlugRoute
+  '/eventos/$slug': typeof EventosSlugRoute
+  '/abaixo-assinados': typeof AbaixoAssinadosIndexRoute
+  '/eventos': typeof EventosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/abaixo-assinados': typeof AbaixoAssinadosRoute
-  '/eventos': typeof EventosRoute
+  '/doar': typeof DoarRoute
+  '/lgpd': typeof LgpdRoute
   '/voluntarios': typeof VoluntariosRoute
+  '/abaixo-assinados/$slug': typeof AbaixoAssinadosSlugRoute
+  '/eventos/$slug': typeof EventosSlugRoute
+  '/abaixo-assinados/': typeof AbaixoAssinadosIndexRoute
+  '/eventos/': typeof EventosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/abaixo-assinados' | '/eventos' | '/voluntarios'
+  fullPaths:
+    | '/'
+    | '/doar'
+    | '/lgpd'
+    | '/voluntarios'
+    | '/abaixo-assinados/$slug'
+    | '/eventos/$slug'
+    | '/abaixo-assinados/'
+    | '/eventos/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/abaixo-assinados' | '/eventos' | '/voluntarios'
-  id: '__root__' | '/' | '/abaixo-assinados' | '/eventos' | '/voluntarios'
+  to:
+    | '/'
+    | '/doar'
+    | '/lgpd'
+    | '/voluntarios'
+    | '/abaixo-assinados/$slug'
+    | '/eventos/$slug'
+    | '/abaixo-assinados'
+    | '/eventos'
+  id:
+    | '__root__'
+    | '/'
+    | '/doar'
+    | '/lgpd'
+    | '/voluntarios'
+    | '/abaixo-assinados/$slug'
+    | '/eventos/$slug'
+    | '/abaixo-assinados/'
+    | '/eventos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AbaixoAssinadosRoute: typeof AbaixoAssinadosRoute
-  EventosRoute: typeof EventosRoute
+  DoarRoute: typeof DoarRoute
+  LgpdRoute: typeof LgpdRoute
   VoluntariosRoute: typeof VoluntariosRoute
+  AbaixoAssinadosSlugRoute: typeof AbaixoAssinadosSlugRoute
+  EventosSlugRoute: typeof EventosSlugRoute
+  AbaixoAssinadosIndexRoute: typeof AbaixoAssinadosIndexRoute
+  EventosIndexRoute: typeof EventosIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -78,18 +143,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VoluntariosRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/eventos': {
-      id: '/eventos'
-      path: '/eventos'
-      fullPath: '/eventos'
-      preLoaderRoute: typeof EventosRouteImport
+    '/lgpd': {
+      id: '/lgpd'
+      path: '/lgpd'
+      fullPath: '/lgpd'
+      preLoaderRoute: typeof LgpdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/abaixo-assinados': {
-      id: '/abaixo-assinados'
-      path: '/abaixo-assinados'
-      fullPath: '/abaixo-assinados'
-      preLoaderRoute: typeof AbaixoAssinadosRouteImport
+    '/doar': {
+      id: '/doar'
+      path: '/doar'
+      fullPath: '/doar'
+      preLoaderRoute: typeof DoarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -99,15 +164,57 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/eventos/': {
+      id: '/eventos/'
+      path: '/eventos'
+      fullPath: '/eventos/'
+      preLoaderRoute: typeof EventosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/abaixo-assinados/': {
+      id: '/abaixo-assinados/'
+      path: '/abaixo-assinados'
+      fullPath: '/abaixo-assinados/'
+      preLoaderRoute: typeof AbaixoAssinadosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/eventos/$slug': {
+      id: '/eventos/$slug'
+      path: '/eventos/$slug'
+      fullPath: '/eventos/$slug'
+      preLoaderRoute: typeof EventosSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/abaixo-assinados/$slug': {
+      id: '/abaixo-assinados/$slug'
+      path: '/abaixo-assinados/$slug'
+      fullPath: '/abaixo-assinados/$slug'
+      preLoaderRoute: typeof AbaixoAssinadosSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AbaixoAssinadosRoute: AbaixoAssinadosRoute,
-  EventosRoute: EventosRoute,
+  DoarRoute: DoarRoute,
+  LgpdRoute: LgpdRoute,
   VoluntariosRoute: VoluntariosRoute,
+  AbaixoAssinadosSlugRoute: AbaixoAssinadosSlugRoute,
+  EventosSlugRoute: EventosSlugRoute,
+  AbaixoAssinadosIndexRoute: AbaixoAssinadosIndexRoute,
+  EventosIndexRoute: EventosIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
