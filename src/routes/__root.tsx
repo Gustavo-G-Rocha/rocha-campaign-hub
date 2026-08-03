@@ -78,23 +78,23 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Willian Rocha — Pré-candidato a Deputado Estadual" },
+      { title: "Willian Rocha — Candidato a Deputado Estadual" },
       {
         name: "description",
         content:
-          "Willian Rocha, pré-candidato a Deputado Estadual. Seja voluntário, participe dos eventos e apoie os abaixo-assinados da campanha.",
+          "Willian Rocha, candidato a Deputado Estadual. Seja voluntário, participe dos eventos e apoie os abaixo-assinados da campanha.",
       },
       { name: "author", content: "Willian Rocha" },
-      { property: "og:title", content: "Willian Rocha — Pré-candidato a Deputado Estadual" },
+      { property: "og:title", content: "Willian Rocha — Candidato a Deputado Estadual" },
       {
         property: "og:description",
         content:
-          "Willian Rocha, pré-candidato a Deputado Estadual. Seja voluntário, participe dos eventos e apoie os abaixo-assinados da campanha.",
+          "Willian Rocha, candidato a Deputado Estadual. Seja voluntário, participe dos eventos e apoie os abaixo-assinados da campanha.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Willian Rocha — Pré-candidato a Deputado Estadual" },
-      { name: "twitter:description", content: "Willian Rocha, pré-candidato a Deputado Estadual. Seja voluntário, participe dos eventos e apoie os abaixo-assinados da campanha." },
+      { name: "twitter:title", content: "Willian Rocha — Candidato a Deputado Estadual" },
+      { name: "twitter:description", content: "Willian Rocha, candidato a Deputado Estadual. Seja voluntário, participe dos eventos e apoie os abaixo-assinados da campanha." },
       { property: "og:image", content: "/og-image.jpg" },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },

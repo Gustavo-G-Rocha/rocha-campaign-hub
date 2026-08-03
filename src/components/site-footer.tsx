@@ -20,7 +20,7 @@ export function SiteFooter() {
                 Willian <span className="text-brand-yellow">Rocha</span>
               </p>
               <p className="mt-1 text-sm">
-                Pré-candidato a {siteConfig.cargo} — {siteConfig.cidade}
+                Candidato a {siteConfig.cargo} — {siteConfig.cidade}
               </p>
             </div>
           </div>

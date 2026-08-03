@@ -41,7 +41,7 @@ function Lgpd() {
           <Bloco titulo="1. Quem é o responsável pelos seus dados">
             <p>
               Esta página é mantida pela campanha de <strong>{siteConfig.candidato}</strong>,
-              pré-candidato a {siteConfig.cargo} pelo {siteConfig.cidade}. A campanha atua como
+              candidato a {siteConfig.cargo} pelo {siteConfig.cidade}. A campanha atua como
               <em> controladora</em> dos dados pessoais coletados neste site, decidindo sobre as
               finalidades e os meios de tratamento.
             </p>
@@ -73,7 +73,7 @@ function Lgpd() {
           <Bloco titulo="3. Para que usamos seus dados">
             <ul className="list-disc space-y-1 pl-5">
               <li>Organizar e mobilizar a rede de voluntários da campanha;</li>
-              <li>Comunicar eventos, ações e novidades da pré-candidatura;</li>
+              <li>Comunicar eventos, ações e novidades da candidatura;</li>
               <li>Registrar e contabilizar o apoio a causas e abaixo-assinados;</li>
               <li>Responder às suas mensagens e solicitações;</li>
               <li>Cumprir obrigações legais e eleitorais aplicáveis.</li>
