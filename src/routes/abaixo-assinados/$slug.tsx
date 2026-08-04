@@ -117,10 +117,11 @@ function PetitionPage() {
         <div className="mx-auto max-w-xl px-4">
           <div className="rounded-lg border bg-card p-6 shadow-sm">
             <div className="flex justify-between text-sm font-semibold text-brand-dark">
-              <span>{petition.assinaturas.toLocaleString("pt-BR")} assinaturas</span>
-              <span className="text-muted-foreground">
-                Meta: {petition.meta.toLocaleString("pt-BR")}
+              <span>
+                {petition.assinaturas.toLocaleString("pt-BR")}/
+                {petition.meta.toLocaleString("pt-BR")} assinaturas
               </span>
+              <span className="text-muted-foreground">{pct}%</span>
             </div>
             <Progress value={pct} className="mt-2" />
           </div>

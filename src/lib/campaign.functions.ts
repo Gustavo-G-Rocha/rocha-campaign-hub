@@ -54,21 +54,13 @@ const demoEvents: EventItem[] = [
 const demoPetitions: PetitionItem[] = [
   {
     id: 1,
-    slug: "mais-seguranca",
-    titulo: "Mais Segurança nos Bairros",
-    descricao: "Assine pela ampliação do policiamento e iluminação pública nos bairros do estado.",
-    meta: 5000,
-    imagem_url: "https://picsum.photos/seed/mais-seguranca/1600/900",
-    assinaturas: 1240,
-  },
-  {
-    id: 2,
-    slug: "saude-para-todos",
-    titulo: "Saúde Pública de Qualidade",
-    descricao: "Apoie a melhoria dos postos de saúde e a redução das filas de espera.",
-    meta: 3000,
-    imagem_url: "https://picsum.photos/seed/saude-para-todos/1600/900",
-    assinaturas: 870,
+    slug: "retirada-mesa-solidaria-dr-muricy",
+    titulo: "Abaixo-assinado pela retirada da Mesa Solidária da Rua Dr. Muricy (Curitiba)",
+    descricao:
+      "Assine pela retirada da Mesa Solidária da Rua Dr. Muricy, no centro de Curitiba. Moradores e comerciantes relatam aumento da insegurança na região.",
+    meta: 200,
+    imagem_url: "/banner-mesa-solidaria.jpg",
+    assinaturas: 84,
   },
 ];
 
@@ -87,11 +79,11 @@ const volunteerSchema = z.object({
 export const createVolunteer = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => volunteerSchema.parse(data))
   .handler(async ({ data }) => {
-    const { hasDatabase, getSql } = await import("./db.server");
+    const { hasDatabase, getDb } = await import("./db.server");
     if (!hasDatabase()) {
       return { ok: true as const, demo: true as const };
     }
-    const sql = getSql();
+    const sql = await getDb();
     await sql`
       INSERT INTO volunteers (nome, telefone, email, cidade, bairro, mensagem)
       VALUES (${data.nome}, ${data.telefone}, ${data.email || null},
@@ -105,9 +97,9 @@ export const createVolunteer = createServerFn({ method: "POST" })
 // ----------------------------------------------------------------
 export const getEvents = createServerFn({ method: "GET" }).handler(
   async (): Promise<EventItem[]> => {
-    const { hasDatabase, getSql } = await import("./db.server");
+    const { hasDatabase, getDb } = await import("./db.server");
     if (!hasDatabase()) return demoEvents;
-    const sql = getSql();
+    const sql = await getDb();
     const rows = await sql<EventItem[]>`
       SELECT id, slug, titulo, descricao, local, cidade, data_evento, imagem_url
       FROM events
@@ -125,11 +117,11 @@ const eventBySlugSchema = z.object({ slug: z.string().min(1) });
 export const getEventBySlug = createServerFn({ method: "GET" })
   .inputValidator((data: unknown) => eventBySlugSchema.parse(data))
   .handler(async ({ data }): Promise<EventItem | null> => {
-    const { hasDatabase, getSql } = await import("./db.server");
+    const { hasDatabase, getDb } = await import("./db.server");
     if (!hasDatabase()) {
       return demoEvents.find((e) => e.slug === data.slug) ?? null;
     }
-    const sql = getSql();
+    const sql = await getDb();
     const rows = await sql<EventItem[]>`
       SELECT id, slug, titulo, descricao, local, cidade, data_evento, imagem_url
       FROM events
@@ -145,9 +137,9 @@ export const getEventBySlug = createServerFn({ method: "GET" })
 // ----------------------------------------------------------------
 export const getPetitions = createServerFn({ method: "GET" }).handler(
   async (): Promise<PetitionItem[]> => {
-    const { hasDatabase, getSql } = await import("./db.server");
+    const { hasDatabase, getDb } = await import("./db.server");
     if (!hasDatabase()) return demoPetitions;
-    const sql = getSql();
+    const sql = await getDb();
     const rows = await sql<PetitionItem[]>`
       SELECT p.id, p.slug, p.titulo, p.descricao, p.meta, p.imagem_url,
              COUNT(s.id)::int AS assinaturas
@@ -166,11 +158,11 @@ const petitionBySlugSchema = z.object({ slug: z.string().min(1) });
 export const getPetitionBySlug = createServerFn({ method: "GET" })
   .inputValidator((data: unknown) => petitionBySlugSchema.parse(data))
   .handler(async ({ data }): Promise<PetitionItem | null> => {
-    const { hasDatabase, getSql } = await import("./db.server");
+    const { hasDatabase, getDb } = await import("./db.server");
     if (!hasDatabase()) {
       return demoPetitions.find((p) => p.slug === data.slug) ?? null;
     }
-    const sql = getSql();
+    const sql = await getDb();
     const rows = await sql<PetitionItem[]>`
       SELECT p.id, p.slug, p.titulo, p.descricao, p.meta, p.imagem_url,
              COUNT(s.id)::int AS assinaturas
@@ -194,11 +186,11 @@ const signSchema = z.object({
 export const signPetition = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => signSchema.parse(data))
   .handler(async ({ data }) => {
-    const { hasDatabase, getSql } = await import("./db.server");
+    const { hasDatabase, getDb } = await import("./db.server");
     if (!hasDatabase()) {
       return { ok: true as const, demo: true as const };
     }
-    const sql = getSql();
+    const sql = await getDb();
     const petition = await sql<{ id: number }[]>`
       SELECT id FROM petitions WHERE slug = ${data.slug} AND ativo = TRUE LIMIT 1
     `;
