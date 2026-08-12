@@ -16,8 +16,8 @@ function Index() {
         <img
           src={heroCover}
           alt="Willian Rocha — Candidato a Deputado Estadual"
-          width={1920}
-          height={900}
+          width={953}
+          height={458}
           className="h-auto w-full"
         />
         <div className="mx-auto flex max-w-6xl flex-wrap justify-center gap-3 px-4 pb-12 pt-2">
