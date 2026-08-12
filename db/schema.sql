@@ -177,3 +177,12 @@ CROSS JOIN (VALUES
 ) AS v(nome, cidade, estado, telefone)
 WHERE p.slug = 'retirada-mesa-solidaria-dr-muricy'
 ON CONFLICT (petition_id, telefone) DO NOTHING;
+
+-- Abaixo-assinado: Cassação do Vereador Nilso ("Fora Rachador") — sem imagem
+INSERT INTO petitions (slug, titulo, descricao, meta, imagem_url)
+VALUES
+  ('cassacao-vereador-nilso',
+   'Abaixo-assinado pela cassação do Vereador Nilso',
+   'Assine pela cassação do mandato do Vereador Nilso. Some sua voz à campanha "Fora Rachador".',
+   200, NULL)
+ON CONFLICT (slug) DO NOTHING;

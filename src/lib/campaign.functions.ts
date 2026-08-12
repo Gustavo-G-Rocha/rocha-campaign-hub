@@ -62,6 +62,16 @@ const demoPetitions: PetitionItem[] = [
     imagem_url: "/banner-mesa-solidaria.jpg",
     assinaturas: 84,
   },
+  {
+    id: 2,
+    slug: "cassacao-vereador-nilso",
+    titulo: "Abaixo-assinado pela cassação do Vereador Nilso",
+    descricao:
+      'Assine pela cassação do mandato do Vereador Nilso. Some sua voz à campanha "Fora Rachador".',
+    meta: 200,
+    imagem_url: null,
+    assinaturas: 0,
+  },
 ];
 
 // ----------------------------------------------------------------
