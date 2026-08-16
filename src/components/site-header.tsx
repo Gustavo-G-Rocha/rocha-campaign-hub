@@ -5,6 +5,7 @@ import missaoLogo from "@/assets/missao-logo.png";
 
 const navItems = [
   { to: "/", label: "Home" },
+  { to: "/propostas", label: "Propostas" },
   { to: "/voluntarios", label: "Voluntários" },
   { to: "/eventos", label: "Eventos" },
   { to: "/abaixo-assinados", label: "Abaixo-assinados" },

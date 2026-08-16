@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VoluntariosRouteImport } from './routes/voluntarios'
+import { Route as PropostasRouteImport } from './routes/propostas'
 import { Route as LgpdRouteImport } from './routes/lgpd'
 import { Route as DoarRouteImport } from './routes/doar'
 import { Route as IndexRouteImport } from './routes/index'
@@ -21,6 +22,11 @@ import { Route as AbaixoAssinadosSlugRouteImport } from './routes/abaixo-assinad
 const VoluntariosRoute = VoluntariosRouteImport.update({
   id: '/voluntarios',
   path: '/voluntarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PropostasRoute = PropostasRouteImport.update({
+  id: '/propostas',
+  path: '/propostas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LgpdRoute = LgpdRouteImport.update({
@@ -63,6 +69,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/doar': typeof DoarRoute
   '/lgpd': typeof LgpdRoute
+  '/propostas': typeof PropostasRoute
   '/voluntarios': typeof VoluntariosRoute
   '/abaixo-assinados/$slug': typeof AbaixoAssinadosSlugRoute
   '/eventos/$slug': typeof EventosSlugRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/doar': typeof DoarRoute
   '/lgpd': typeof LgpdRoute
+  '/propostas': typeof PropostasRoute
   '/voluntarios': typeof VoluntariosRoute
   '/abaixo-assinados/$slug': typeof AbaixoAssinadosSlugRoute
   '/eventos/$slug': typeof EventosSlugRoute
@@ -84,6 +92,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/doar': typeof DoarRoute
   '/lgpd': typeof LgpdRoute
+  '/propostas': typeof PropostasRoute
   '/voluntarios': typeof VoluntariosRoute
   '/abaixo-assinados/$slug': typeof AbaixoAssinadosSlugRoute
   '/eventos/$slug': typeof EventosSlugRoute
@@ -96,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/doar'
     | '/lgpd'
+    | '/propostas'
     | '/voluntarios'
     | '/abaixo-assinados/$slug'
     | '/eventos/$slug'
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/doar'
     | '/lgpd'
+    | '/propostas'
     | '/voluntarios'
     | '/abaixo-assinados/$slug'
     | '/eventos/$slug'
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/'
     | '/doar'
     | '/lgpd'
+    | '/propostas'
     | '/voluntarios'
     | '/abaixo-assinados/$slug'
     | '/eventos/$slug'
@@ -127,6 +139,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DoarRoute: typeof DoarRoute
   LgpdRoute: typeof LgpdRoute
+  PropostasRoute: typeof PropostasRoute
   VoluntariosRoute: typeof VoluntariosRoute
   AbaixoAssinadosSlugRoute: typeof AbaixoAssinadosSlugRoute
   EventosSlugRoute: typeof EventosSlugRoute
@@ -141,6 +154,13 @@ declare module '@tanstack/react-router' {
       path: '/voluntarios'
       fullPath: '/voluntarios'
       preLoaderRoute: typeof VoluntariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/propostas': {
+      id: '/propostas'
+      path: '/propostas'
+      fullPath: '/propostas'
+      preLoaderRoute: typeof PropostasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lgpd': {
@@ -199,6 +219,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DoarRoute: DoarRoute,
   LgpdRoute: LgpdRoute,
+  PropostasRoute: PropostasRoute,
   VoluntariosRoute: VoluntariosRoute,
   AbaixoAssinadosSlugRoute: AbaixoAssinadosSlugRoute,
   EventosSlugRoute: EventosSlugRoute,
