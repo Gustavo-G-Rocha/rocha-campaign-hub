@@ -37,6 +37,20 @@ CREATE TABLE IF NOT EXISTS events (
 
 CREATE INDEX IF NOT EXISTS idx_events_data_evento ON events (data_evento);
 
+-- Inscrições nos eventos
+CREATE TABLE IF NOT EXISTS event_registrations (
+  id         SERIAL PRIMARY KEY,
+  event_id   INTEGER NOT NULL REFERENCES events (id) ON DELETE CASCADE,
+  nome       TEXT NOT NULL,
+  cidade     TEXT NOT NULL,
+  estado     TEXT NOT NULL,
+  telefone   TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (event_id, telefone)
+);
+
+CREATE INDEX IF NOT EXISTS idx_event_reg_event ON event_registrations (event_id);
+
 -- ------------------------------------------------------------
 -- Abaixo-assinados
 -- ------------------------------------------------------------

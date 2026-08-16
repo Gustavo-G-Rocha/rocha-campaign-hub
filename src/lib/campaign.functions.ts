@@ -13,6 +13,7 @@ export type EventItem = {
   cidade: string | null;
   data_evento: string;
   imagem_url: string | null;
+  inscritos: number;
 };
 
 export type PetitionItem = {
@@ -39,6 +40,7 @@ const demoEvents: EventItem[] = [
     cidade: "Curitiba",
     data_evento: new Date("2026-08-23T19:00:00-03:00").toISOString(),
     imagem_url: null,
+    inscritos: 0,
   },
 ];
 
@@ -102,9 +104,12 @@ export const getEvents = createServerFn({ method: "GET" }).handler(
     if (!hasDatabase()) return demoEvents;
     const sql = await getDb();
     const rows = await sql<EventItem[]>`
-      SELECT id, slug, titulo, descricao, local, cidade, data_evento, imagem_url
-      FROM events
-      ORDER BY data_evento ASC
+      SELECT e.id, e.slug, e.titulo, e.descricao, e.local, e.cidade, e.data_evento, e.imagem_url,
+             COUNT(r.id)::int AS inscritos
+      FROM events e
+      LEFT JOIN event_registrations r ON r.event_id = e.id
+      GROUP BY e.id
+      ORDER BY e.data_evento ASC
     `;
     return rows.map((r) => ({
       ...r,
@@ -124,13 +129,49 @@ export const getEventBySlug = createServerFn({ method: "GET" })
     }
     const sql = await getDb();
     const rows = await sql<EventItem[]>`
-      SELECT id, slug, titulo, descricao, local, cidade, data_evento, imagem_url
-      FROM events
-      WHERE slug = ${data.slug}
+      SELECT e.id, e.slug, e.titulo, e.descricao, e.local, e.cidade, e.data_evento, e.imagem_url,
+             COUNT(r.id)::int AS inscritos
+      FROM events e
+      LEFT JOIN event_registrations r ON r.event_id = e.id
+      WHERE e.slug = ${data.slug}
+      GROUP BY e.id
       LIMIT 1
     `;
     if (rows.length === 0) return null;
     return { ...rows[0], data_evento: new Date(rows[0].data_evento).toISOString() };
+  });
+
+const registerSchema = z.object({
+  slug: z.string().min(1),
+  nome: z.string().min(2, "Informe seu nome"),
+  cidade: z.string().min(2, "Informe sua cidade"),
+  estado: z.string().length(2, "Selecione o estado"),
+  telefone: z.string().min(8, "Informe um telefone válido"),
+});
+
+export const registerEvent = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => registerSchema.parse(data))
+  .handler(async ({ data }) => {
+    const { hasDatabase, getDb } = await import("./db.server");
+    if (!hasDatabase()) {
+      return { ok: true as const, demo: true as const };
+    }
+    const sql = await getDb();
+    const event = await sql<{ id: number }[]>`
+      SELECT id FROM events WHERE slug = ${data.slug} LIMIT 1
+    `;
+    if (event.length === 0) {
+      return { ok: false as const, error: "Evento não encontrado" };
+    }
+    try {
+      await sql`
+        INSERT INTO event_registrations (event_id, nome, cidade, estado, telefone)
+        VALUES (${event[0].id}, ${data.nome}, ${data.cidade}, ${data.estado}, ${data.telefone})
+      `;
+    } catch {
+      return { ok: false as const, error: "Você já se inscreveu neste evento" };
+    }
+    return { ok: true as const, demo: false as const };
   });
 
 // ----------------------------------------------------------------

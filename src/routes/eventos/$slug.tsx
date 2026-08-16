@@ -1,9 +1,22 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { ArrowLeft, Calendar, MapPin } from "lucide-react";
+import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { useState } from "react";
+import { toast } from "sonner";
+import { ArrowLeft, Calendar, MapPin, Users } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
-
-import { getEventBySlug } from "@/lib/campaign.functions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { brStates } from "@/lib/br-states";
+import { getEventBySlug, registerEvent } from "@/lib/campaign.functions";
 
 function eventQuery(slug: string) {
   return queryOptions({
@@ -46,8 +59,45 @@ export const Route = createFileRoute("/eventos/$slug")({
 function EventPage() {
   const { slug } = Route.useParams();
   const { data: event } = useSuspenseQuery(eventQuery(slug));
+  const queryClient = useQueryClient();
+  const register = useServerFn(registerEvent);
+  const [estado, setEstado] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [registered, setRegistered] = useState(false);
 
   if (!event) return null;
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+    setLoading(true);
+    try {
+      const res = await register({
+        data: {
+          slug,
+          nome: String(fd.get("nome") || ""),
+          cidade: String(fd.get("cidade") || ""),
+          estado,
+          telefone: String(fd.get("telefone") || ""),
+        },
+      });
+      if (res.ok) {
+        toast.success("Inscrição confirmada. Nos vemos lá!");
+        setRegistered(true);
+        form.reset();
+        setEstado("");
+        queryClient.invalidateQueries({ queryKey: ["events"] });
+      } else {
+        toast.error(res.error ?? "Não foi possível inscrever.");
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Erro ao inscrever. Tente novamente.";
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <SiteLayout>
@@ -85,7 +135,69 @@ function EventPage() {
                 {[event.local, event.cidade].filter(Boolean).join(" — ")}
               </span>
             )}
+            <span className="inline-flex items-center gap-3 text-brand-dark">
+              <Users className="h-5 w-5 text-brand-yellow" />
+              {event.inscritos.toLocaleString("pt-BR")}{" "}
+              {event.inscritos === 1 ? "inscrito" : "inscritos"}
+            </span>
           </div>
+
+          <div className="mt-8">
+            <h2 className="font-display text-2xl uppercase text-brand-dark">Inscreva-se</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Confirme sua presença e receba as informações do evento.
+            </p>
+          </div>
+
+          {registered ? (
+            <div className="mt-6 rounded-lg border bg-card p-6 text-center shadow-sm">
+              <h3 className="font-display text-xl uppercase text-brand-dark">
+                Inscrição confirmada!
+              </h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Obrigado por confirmar presença. Nos vemos no evento!
+              </p>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="mt-6 grid gap-5">
+              <div className="grid gap-2">
+                <Label htmlFor="nome">Nome completo *</Label>
+                <Input id="nome" name="nome" required placeholder="Seu nome" />
+              </div>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div className="grid gap-2">
+                  <Label htmlFor="cidade">Cidade *</Label>
+                  <Input id="cidade" name="cidade" required placeholder="Sua cidade" />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="estado">Estado *</Label>
+                  <Select value={estado} onValueChange={setEstado}>
+                    <SelectTrigger id="estado">
+                      <SelectValue placeholder="UF" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {brStates.map((s) => (
+                        <SelectItem key={s.uf} value={s.uf}>
+                          {s.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="telefone">Telefone / WhatsApp *</Label>
+                <Input id="telefone" name="telefone" required placeholder="(41) 99999-9999" />
+              </div>
+              <Button
+                type="submit"
+                disabled={loading || !estado}
+                className="bg-brand-dark font-bold uppercase tracking-wide text-brand-yellow hover:bg-brand-dark/90"
+              >
+                {loading ? "Enviando..." : "Confirmar inscrição"}
+              </Button>
+            </form>
+          )}
         </div>
       </section>
     </SiteLayout>
