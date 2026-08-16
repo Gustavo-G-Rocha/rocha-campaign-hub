@@ -67,10 +67,16 @@ CREATE INDEX IF NOT EXISTS idx_signatures_petition ON petition_signatures (petit
 -- ------------------------------------------------------------
 -- Dados de exemplo (opcional) — remova em produção se quiser
 -- ------------------------------------------------------------
+-- Remove eventos de exemplo antigos
+DELETE FROM events WHERE slug IN ('caminhada-pela-mudanca', 'reuniao-com-liderancas');
+
 INSERT INTO events (slug, titulo, descricao, local, cidade, data_evento, imagem_url)
 VALUES
-  ('caminhada-pela-mudanca', 'Caminhada pela Mudança', 'Venha caminhar conosco e conversar sobre as propostas para a nossa região.', 'Praça Central', 'Curitiba', now() + interval '10 days', 'https://picsum.photos/seed/caminhada-pela-mudanca/1600/900'),
-  ('reuniao-com-liderancas', 'Reunião com Lideranças', 'Encontro aberto para ouvir as demandas da comunidade.', 'Centro Comunitário', 'Londrina', now() + interval '20 days', 'https://picsum.photos/seed/reuniao-com-liderancas/1600/900')
+  ('happyhour-23-08',
+   'Happy Hour do debate do Renan Santos com Willian Rocha!!',
+   'A partir das 19h. Pós-debate: balada show, no local, com possibilidade de apoiador assistir à tua live.',
+   'Bar do Didi - Sete (Avenida Sete de Setembro, 3751)', 'Curitiba',
+   '2026-08-23 19:00:00-03', NULL)
 ON CONFLICT (slug) DO NOTHING;
 
 -- Remove abaixo-assinados de exemplo antigos (as assinaturas caem junto via CASCADE)

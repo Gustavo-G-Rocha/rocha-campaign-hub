@@ -31,23 +31,14 @@ export type PetitionItem = {
 const demoEvents: EventItem[] = [
   {
     id: 1,
-    slug: "caminhada-pela-mudanca",
-    titulo: "Caminhada pela Mudança",
-    descricao: "Venha caminhar conosco e conversar sobre as propostas para a nossa região.",
-    local: "Praça Central",
+    slug: "happyhour-23-08",
+    titulo: "Happy Hour do debate do Renan Santos com Willian Rocha!!",
+    descricao:
+      "A partir das 19h. Pós-debate: balada show, no local, com possibilidade de apoiador assistir à tua live.",
+    local: "Bar do Didi - Sete (Avenida Sete de Setembro, 3751)",
     cidade: "Curitiba",
-    data_evento: new Date(Date.now() + 10 * 864e5).toISOString(),
-    imagem_url: "https://picsum.photos/seed/caminhada-pela-mudanca/1600/900",
-  },
-  {
-    id: 2,
-    slug: "reuniao-com-liderancas",
-    titulo: "Reunião com Lideranças",
-    descricao: "Encontro aberto para ouvir as demandas da comunidade.",
-    local: "Centro Comunitário",
-    cidade: "Londrina",
-    data_evento: new Date(Date.now() + 20 * 864e5).toISOString(),
-    imagem_url: "https://picsum.photos/seed/reuniao-com-liderancas/1600/900",
+    data_evento: new Date("2026-08-23T19:00:00-03:00").toISOString(),
+    imagem_url: null,
   },
 ];
 
