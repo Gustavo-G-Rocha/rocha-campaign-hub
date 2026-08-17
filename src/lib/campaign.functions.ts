@@ -33,7 +33,7 @@ const demoEvents: EventItem[] = [
   {
     id: 1,
     slug: "happyhour-23-08",
-    titulo: "Happy Hour do debate do Renan Santos com Willian Rocha!!",
+    titulo: "Happy Hour do Debate",
     descricao:
       "A partir das 19h. Pós-debate: balada show, no local, com possibilidade de apoiador assistir à tua live.",
     local: "Bar do Didi - Sete (Avenida Sete de Setembro, 3751)",
