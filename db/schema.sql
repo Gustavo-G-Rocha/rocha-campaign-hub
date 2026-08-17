@@ -87,11 +87,13 @@ DELETE FROM events WHERE slug IN ('caminhada-pela-mudanca', 'reuniao-com-lideran
 INSERT INTO events (slug, titulo, descricao, local, cidade, data_evento, imagem_url)
 VALUES
   ('happyhour-23-08',
-   'Happy Hour do debate do Renan Santos com Willian Rocha!!',
+   'Happy Hour do Debate',
    'A partir das 19h. Pós-debate: balada show, no local, com possibilidade de apoiador assistir à tua live.',
    'Bar do Didi - Sete (Avenida Sete de Setembro, 3751)', 'Curitiba',
    '2026-08-23 19:00:00-03', NULL)
 ON CONFLICT (slug) DO NOTHING;
+
+UPDATE events SET titulo = 'Happy Hour do Debate' WHERE slug = 'happyhour-23-08';
 
 -- Remove abaixo-assinados de exemplo antigos (as assinaturas caem junto via CASCADE)
 DELETE FROM petitions WHERE slug IN ('mais-seguranca', 'saude-para-todos');
