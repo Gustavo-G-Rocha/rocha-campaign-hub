@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import missaoLogo from "@/assets/missao-logo.png";
+import { siteConfig } from "@/lib/site-config";
 
 const navItems = [
   { to: "/", label: "Home" },
@@ -13,6 +14,9 @@ const navItems = [
 
 const doarLinkClass =
   "inline-flex items-center rounded-full bg-brand-yellow px-4 py-1.5 text-sm font-bold uppercase tracking-wide text-brand-dark transition-transform hover:scale-105";
+
+const materialLinkClass =
+  "inline-flex items-center rounded-full border border-brand-yellow px-4 py-1.5 text-sm font-bold uppercase tracking-wide text-brand-yellow transition-colors hover:bg-brand-yellow hover:text-brand-dark";
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
@@ -37,6 +41,14 @@ export function SiteHeader() {
           <Link to="/doar" className={doarLinkClass}>
             Doar
           </Link>
+          <a
+            href={siteConfig.materialUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={materialLinkClass}
+          >
+            Pedir material
+          </a>
           {navItems.map((item) => (
             <Link
               key={item.to}
@@ -57,9 +69,20 @@ export function SiteHeader() {
 
       {open && (
         <nav className="border-t border-white/10 bg-brand-dark px-4 pb-4 md:hidden">
-          <Link to="/doar" onClick={() => setOpen(false)} className={`${doarLinkClass} mt-3 mb-1`}>
-            Doar
-          </Link>
+          <div className="mt-3 mb-1 flex flex-wrap gap-2">
+            <Link to="/doar" onClick={() => setOpen(false)} className={doarLinkClass}>
+              Doar
+            </Link>
+            <a
+              href={siteConfig.materialUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              className={materialLinkClass}
+            >
+              Pedir material
+            </a>
+          </div>
           {navItems.map((item) => (
             <Link
               key={item.to}

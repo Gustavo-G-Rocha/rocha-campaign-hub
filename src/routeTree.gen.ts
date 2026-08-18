@@ -15,6 +15,7 @@ import { Route as LgpdRouteImport } from './routes/lgpd'
 import { Route as DoarRouteImport } from './routes/doar'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EventosIndexRouteImport } from './routes/eventos/index'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AbaixoAssinadosIndexRouteImport } from './routes/abaixo-assinados/index'
 import { Route as EventosSlugRouteImport } from './routes/eventos/$slug'
 import { Route as AbaixoAssinadosSlugRouteImport } from './routes/abaixo-assinados/$slug'
@@ -49,6 +50,11 @@ const EventosIndexRoute = EventosIndexRouteImport.update({
   path: '/eventos/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AbaixoAssinadosIndexRoute = AbaixoAssinadosIndexRouteImport.update({
   id: '/abaixo-assinados/',
   path: '/abaixo-assinados/',
@@ -74,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/abaixo-assinados/$slug': typeof AbaixoAssinadosSlugRoute
   '/eventos/$slug': typeof EventosSlugRoute
   '/abaixo-assinados/': typeof AbaixoAssinadosIndexRoute
+  '/admin/': typeof AdminIndexRoute
   '/eventos/': typeof EventosIndexRoute
 }
 export interface FileRoutesByTo {
@@ -85,6 +92,7 @@ export interface FileRoutesByTo {
   '/abaixo-assinados/$slug': typeof AbaixoAssinadosSlugRoute
   '/eventos/$slug': typeof EventosSlugRoute
   '/abaixo-assinados': typeof AbaixoAssinadosIndexRoute
+  '/admin': typeof AdminIndexRoute
   '/eventos': typeof EventosIndexRoute
 }
 export interface FileRoutesById {
@@ -97,6 +105,7 @@ export interface FileRoutesById {
   '/abaixo-assinados/$slug': typeof AbaixoAssinadosSlugRoute
   '/eventos/$slug': typeof EventosSlugRoute
   '/abaixo-assinados/': typeof AbaixoAssinadosIndexRoute
+  '/admin/': typeof AdminIndexRoute
   '/eventos/': typeof EventosIndexRoute
 }
 export interface FileRouteTypes {
@@ -110,6 +119,7 @@ export interface FileRouteTypes {
     | '/abaixo-assinados/$slug'
     | '/eventos/$slug'
     | '/abaixo-assinados/'
+    | '/admin/'
     | '/eventos/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -121,6 +131,7 @@ export interface FileRouteTypes {
     | '/abaixo-assinados/$slug'
     | '/eventos/$slug'
     | '/abaixo-assinados'
+    | '/admin'
     | '/eventos'
   id:
     | '__root__'
@@ -132,6 +143,7 @@ export interface FileRouteTypes {
     | '/abaixo-assinados/$slug'
     | '/eventos/$slug'
     | '/abaixo-assinados/'
+    | '/admin/'
     | '/eventos/'
   fileRoutesById: FileRoutesById
 }
@@ -144,6 +156,7 @@ export interface RootRouteChildren {
   AbaixoAssinadosSlugRoute: typeof AbaixoAssinadosSlugRoute
   EventosSlugRoute: typeof EventosSlugRoute
   AbaixoAssinadosIndexRoute: typeof AbaixoAssinadosIndexRoute
+  AdminIndexRoute: typeof AdminIndexRoute
   EventosIndexRoute: typeof EventosIndexRoute
 }
 
@@ -191,6 +204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventosIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/abaixo-assinados/': {
       id: '/abaixo-assinados/'
       path: '/abaixo-assinados'
@@ -224,6 +244,7 @@ const rootRouteChildren: RootRouteChildren = {
   AbaixoAssinadosSlugRoute: AbaixoAssinadosSlugRoute,
   EventosSlugRoute: EventosSlugRoute,
   AbaixoAssinadosIndexRoute: AbaixoAssinadosIndexRoute,
+  AdminIndexRoute: AdminIndexRoute,
   EventosIndexRoute: EventosIndexRoute,
 }
 export const routeTree = rootRouteImport

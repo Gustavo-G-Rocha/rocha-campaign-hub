@@ -43,6 +43,14 @@ export function SiteFooter() {
             <Link to="/doar" className="hover:text-brand-yellow">
               Doar
             </Link>
+            <a
+              href={siteConfig.materialUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-brand-yellow"
+            >
+              Pedir material
+            </a>
           </nav>
         </div>
         <div className="mt-8 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs sm:flex-row sm:items-center sm:justify-between">

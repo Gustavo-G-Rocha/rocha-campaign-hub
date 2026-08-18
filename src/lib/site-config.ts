@@ -7,6 +7,8 @@ export const siteConfig = {
   email: "contato@willianrocha.com.br",
   cidade: "Paraná",
   doarUrl: "https://queroapoiar.com.br/willianrocha",
+  // Loja de material de campanha (site externo)
+  materialUrl: "https://material.willrocha.com.br",
   // Se o Quero Apoiar fornecer um link de embed/widget do contador (painel > Divulgar > Incorporar),
   // cole a URL aqui para exibir o contador ao vivo na página /doar. Deixe null para não exibir.
   doarEmbedUrl: null as string | null,
