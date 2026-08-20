@@ -414,7 +414,7 @@ function EventsTab({ enabled }: { enabled: boolean }) {
           </div>
           <div className="grid gap-2">
             <Label htmlFor="ev-imagem">Imagem (URL)</Label>
-            <Input id="ev-imagem" name="imagem_url" placeholder="/banner-evento.jpg" />
+            <Input id="ev-imagem" name="imagem_url" placeholder="/banner-evento.webp" />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="ev-descricao">Descrição</Label>
@@ -591,7 +591,7 @@ function PetitionsTab({ enabled }: { enabled: boolean }) {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="pt-imagem">Imagem (URL)</Label>
-              <Input id="pt-imagem" name="imagem_url" placeholder="/banner-causa.jpg" />
+              <Input id="pt-imagem" name="imagem_url" placeholder="/banner-causa.webp" />
             </div>
           </div>
           <Button type="submit" disabled={create.isPending} className="justify-self-start">

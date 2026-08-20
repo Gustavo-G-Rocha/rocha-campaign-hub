@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { HeartHandshake, ExternalLink } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { siteConfig } from "@/lib/site-config";
-import qrCode from "@/assets/doar-qrcode.png";
+import qrCode from "@/assets/doar-qrcode.webp";
 
 export const Route = createFileRoute("/doar")({
   head: () => ({

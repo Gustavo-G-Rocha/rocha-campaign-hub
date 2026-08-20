@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { siteConfig } from "@/lib/site-config";
-import missaoLogo from "@/assets/missao-logo.png";
+import missaoLogo from "@/assets/missao-logo.webp";
 
 export function SiteFooter() {
   return (

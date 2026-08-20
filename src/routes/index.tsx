@@ -2,7 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Users, Calendar, FileSignature, ShoppingBag } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { siteConfig } from "@/lib/site-config";
-import heroCover from "@/assets/hero-cover.png";
+import heroCover480 from "@/assets/hero-cover-480.webp";
+import heroCover768 from "@/assets/hero-cover-768.webp";
+import heroCover953 from "@/assets/hero-cover-953.webp";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -13,11 +15,16 @@ function Index() {
     <SiteLayout>
       {/* HERO */}
       <section className="bg-brand-dark">
+        {/* LCP da home: serve a menor largura que couber na tela e sobe a prioridade. */}
         <img
-          src={heroCover}
+          src={heroCover953}
+          srcSet={`${heroCover480} 480w, ${heroCover768} 768w, ${heroCover953} 953w`}
+          sizes="100vw"
           alt="Willian Rocha — Candidato a Deputado Estadual"
           width={953}
           height={458}
+          fetchPriority="high"
+          decoding="async"
           className="h-auto w-full"
         />
         <div className="mx-auto flex max-w-6xl flex-wrap justify-center gap-3 px-4 pb-12 pt-2">

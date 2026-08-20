@@ -120,7 +120,7 @@ BEGIN
     ('retirada-mesa-solidaria-dr-muricy',
      'Abaixo-assinado pela retirada da Mesa Solidária da Rua Dr. Muricy (Curitiba)',
      'Assine pela retirada da Mesa Solidária da Rua Dr. Muricy, no centro de Curitiba. Moradores e comerciantes relatam aumento da insegurança na região.',
-     200, '/banner-mesa-solidaria.jpg')
+     200, '/banner-mesa-solidaria.webp')
   ON CONFLICT (slug) DO NOTHING;
 
   -- Assinaturas já coletadas (respostas "Sim"; telefones repetidos são ignorados)

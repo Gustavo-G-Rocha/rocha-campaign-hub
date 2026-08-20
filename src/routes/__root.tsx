@@ -95,6 +95,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Willian Rocha — Candidato a Deputado Estadual" },
       { name: "twitter:description", content: "Willian Rocha, candidato a Deputado Estadual. Seja voluntário, participe dos eventos e apoie os abaixo-assinados da campanha." },
+      // Continua JPEG de propósito: o preview de link do WhatsApp não renderiza WebP.
       { property: "og:image", content: "/og-image.jpg" },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
@@ -106,6 +107,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      // Continua PNG de propósito: o iOS não aceita WebP como apple-touch-icon.
       { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
       { rel: "manifest", href: "/site.webmanifest" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },

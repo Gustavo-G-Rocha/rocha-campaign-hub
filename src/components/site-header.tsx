@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-import missaoLogo from "@/assets/missao-logo.png";
+import missaoLogo from "@/assets/missao-logo.webp";
 import { siteConfig } from "@/lib/site-config";
 
 const navItems = [

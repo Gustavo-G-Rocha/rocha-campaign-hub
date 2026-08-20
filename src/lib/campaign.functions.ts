@@ -52,7 +52,7 @@ const demoPetitions: PetitionItem[] = [
     descricao:
       "Assine pela retirada da Mesa Solidária da Rua Dr. Muricy, no centro de Curitiba. Moradores e comerciantes relatam aumento da insegurança na região.",
     meta: 200,
-    imagem_url: "/banner-mesa-solidaria.jpg",
+    imagem_url: "/banner-mesa-solidaria.webp",
     assinaturas: 84,
   },
   {
