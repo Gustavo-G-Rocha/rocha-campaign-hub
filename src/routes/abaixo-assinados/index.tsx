@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { FileSignature, ArrowRight } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
-import { Progress } from "@/components/ui/progress";
 import { getPetitions, type PetitionItem } from "@/lib/campaign.functions";
 
 const petitionsQuery = queryOptions({
@@ -58,8 +57,6 @@ function AbaixoAssinados() {
 }
 
 function PetitionCard({ petition }: { petition: PetitionItem }) {
-  const pct = Math.min(100, Math.round((petition.assinaturas / petition.meta) * 100));
-
   return (
     <Link
       to="/abaixo-assinados/$slug"
@@ -77,17 +74,6 @@ function PetitionCard({ petition }: { petition: PetitionItem }) {
       <div className="flex flex-1 flex-col p-6">
         <h2 className="font-display text-xl uppercase text-brand-dark">{petition.titulo}</h2>
         <p className="mt-2 flex-1 text-sm text-muted-foreground">{petition.descricao}</p>
-
-        <div className="mt-4">
-          <div className="flex justify-between text-sm font-semibold text-brand-dark">
-            <span>
-              {petition.assinaturas.toLocaleString("pt-BR")}/
-              {petition.meta.toLocaleString("pt-BR")} assinaturas
-            </span>
-            <span className="text-muted-foreground">{pct}%</span>
-          </div>
-          <Progress value={pct} className="mt-2" />
-        </div>
 
         <span className="mt-5 inline-flex items-center gap-1 text-sm font-bold uppercase tracking-wide text-brand-dark group-hover:text-brand-yellow/90">
           Assinar <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

@@ -13,7 +13,6 @@ export type EventItem = {
   cidade: string | null;
   data_evento: string;
   imagem_url: string | null;
-  inscritos: number;
 };
 
 export type PetitionItem = {
@@ -21,9 +20,7 @@ export type PetitionItem = {
   slug: string;
   titulo: string;
   descricao: string;
-  meta: number;
   imagem_url: string | null;
-  assinaturas: number;
 };
 
 // ----------------------------------------------------------------
@@ -40,7 +37,6 @@ const demoEvents: EventItem[] = [
     cidade: "Curitiba",
     data_evento: new Date("2026-08-23T19:00:00-03:00").toISOString(),
     imagem_url: null,
-    inscritos: 0,
   },
 ];
 
@@ -51,9 +47,7 @@ const demoPetitions: PetitionItem[] = [
     titulo: "Abaixo-assinado pela retirada da Mesa Solidária da Rua Dr. Muricy (Curitiba)",
     descricao:
       "Assine pela retirada da Mesa Solidária da Rua Dr. Muricy, no centro de Curitiba. Moradores e comerciantes relatam aumento da insegurança na região.",
-    meta: 200,
     imagem_url: "/banner-mesa-solidaria.webp",
-    assinaturas: 84,
   },
   {
     id: 2,
@@ -61,9 +55,7 @@ const demoPetitions: PetitionItem[] = [
     titulo: "Abaixo-assinado pela cassação do Vereador Nilso",
     descricao:
       'Assine pela cassação do mandato do Vereador Nilso. Some sua voz à campanha "Fora Rachador".',
-    meta: 200,
     imagem_url: null,
-    assinaturas: 0,
   },
 ];
 
@@ -104,11 +96,8 @@ export const getEvents = createServerFn({ method: "GET" }).handler(
     if (!hasDatabase()) return demoEvents;
     const sql = await getDb();
     const rows = await sql<EventItem[]>`
-      SELECT e.id, e.slug, e.titulo, e.descricao, e.local, e.cidade, e.data_evento, e.imagem_url,
-             COUNT(r.id)::int AS inscritos
+      SELECT e.id, e.slug, e.titulo, e.descricao, e.local, e.cidade, e.data_evento, e.imagem_url
       FROM events e
-      LEFT JOIN event_registrations r ON r.event_id = e.id
-      GROUP BY e.id
       ORDER BY e.data_evento ASC
     `;
     return rows.map((r) => ({
@@ -129,12 +118,9 @@ export const getEventBySlug = createServerFn({ method: "GET" })
     }
     const sql = await getDb();
     const rows = await sql<EventItem[]>`
-      SELECT e.id, e.slug, e.titulo, e.descricao, e.local, e.cidade, e.data_evento, e.imagem_url,
-             COUNT(r.id)::int AS inscritos
+      SELECT e.id, e.slug, e.titulo, e.descricao, e.local, e.cidade, e.data_evento, e.imagem_url
       FROM events e
-      LEFT JOIN event_registrations r ON r.event_id = e.id
       WHERE e.slug = ${data.slug}
-      GROUP BY e.id
       LIMIT 1
     `;
     if (rows.length === 0) return null;
@@ -183,12 +169,9 @@ export const getPetitions = createServerFn({ method: "GET" }).handler(
     if (!hasDatabase()) return demoPetitions;
     const sql = await getDb();
     const rows = await sql<PetitionItem[]>`
-      SELECT p.id, p.slug, p.titulo, p.descricao, p.meta, p.imagem_url,
-             COUNT(s.id)::int AS assinaturas
+      SELECT p.id, p.slug, p.titulo, p.descricao, p.imagem_url
       FROM petitions p
-      LEFT JOIN petition_signatures s ON s.petition_id = p.id
       WHERE p.ativo = TRUE
-      GROUP BY p.id
       ORDER BY p.created_at DESC
     `;
     return rows;
@@ -206,12 +189,9 @@ export const getPetitionBySlug = createServerFn({ method: "GET" })
     }
     const sql = await getDb();
     const rows = await sql<PetitionItem[]>`
-      SELECT p.id, p.slug, p.titulo, p.descricao, p.meta, p.imagem_url,
-             COUNT(s.id)::int AS assinaturas
+      SELECT p.id, p.slug, p.titulo, p.descricao, p.imagem_url
       FROM petitions p
-      LEFT JOIN petition_signatures s ON s.petition_id = p.id
       WHERE p.slug = ${data.slug} AND p.ativo = TRUE
-      GROUP BY p.id
       LIMIT 1
     `;
     return rows[0] ?? null;

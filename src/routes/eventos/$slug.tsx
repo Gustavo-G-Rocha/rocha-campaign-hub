@@ -3,7 +3,7 @@ import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Calendar, MapPin, Users } from "lucide-react";
+import { ArrowLeft, Calendar, MapPin } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -135,11 +135,6 @@ function EventPage() {
                 {[event.local, event.cidade].filter(Boolean).join(" — ")}
               </span>
             )}
-            <span className="inline-flex items-center gap-3 text-brand-dark">
-              <Users className="h-5 w-5 text-brand-yellow" />
-              {event.inscritos.toLocaleString("pt-BR")}{" "}
-              {event.inscritos === 1 ? "inscrito" : "inscritos"}
-            </span>
           </div>
 
           <div className="mt-8">

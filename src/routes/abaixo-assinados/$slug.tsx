@@ -5,7 +5,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, FileSignature } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
-import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -55,8 +54,6 @@ function PetitionPage() {
   const [signed, setSigned] = useState(false);
 
   if (!petition) return null;
-
-  const pct = Math.min(100, Math.round((petition.assinaturas / petition.meta) * 100));
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -115,19 +112,8 @@ function PetitionPage() {
 
       <section className="bg-background py-12">
         <div className="mx-auto max-w-xl px-4">
-          <div className="rounded-lg border bg-card p-6 shadow-sm">
-            <div className="flex justify-between text-sm font-semibold text-brand-dark">
-              <span>
-                {petition.assinaturas.toLocaleString("pt-BR")}/
-                {petition.meta.toLocaleString("pt-BR")} assinaturas
-              </span>
-              <span className="text-muted-foreground">{pct}%</span>
-            </div>
-            <Progress value={pct} className="mt-2" />
-          </div>
-
           {signed ? (
-            <div className="mt-8 rounded-lg border bg-card p-6 text-center shadow-sm">
+            <div className="rounded-lg border bg-card p-6 text-center shadow-sm">
               <h2 className="font-display text-xl uppercase text-brand-dark">
                 Assinatura confirmada!
               </h2>
@@ -136,7 +122,7 @@ function PetitionPage() {
               </p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="mt-8 grid gap-5">
+            <form onSubmit={handleSubmit} className="grid gap-5">
               <div className="grid gap-2">
                 <Label htmlFor="nome">Nome completo *</Label>
                 <Input id="nome" name="nome" required placeholder="Seu nome" />
