@@ -77,6 +77,18 @@ const propostas: Proposta[] = [
     ],
   },
   {
+    titulo: "Pacote Anti Noia",
+    resumo:
+      "Conjunto de medidas para retomar as ruas e os centros urbanos do Paraná, unindo cadastro estadual dos moradores de rua, fim da ocupação irregular de calçadas, internação compulsória de dependentes químicos e doentes mentais, fiscalização da assistência social e retomada da estrutura hospitalar psiquiátrica.",
+    medidas: [
+      "Criação do Cadastro Estadual Único dos Moradores de Rua: cadastro estadual integrando todos os municípios do Paraná, para que os moradores de rua tenham acesso aos auxílios do Estado e da Prefeitura. Moradores de rua que se envolverem em crimes na cidade terão o cadastro suspenso por tempo pré-determinado.",
+      "Calçada Não é Moradia: autoriza a Polícia Militar a recolher barracas, camas e itens sem dono identificado no local, direcionando o morador de rua para um abrigo.",
+      "Internação Compulsória: criação do Programa Estadual de Internação para usuários de drogas e pessoas com problemas mentais.",
+      "Fim da Mesa Solidária e do FAS: criação de métodos de fiscalização das assistências sociais municipais, para permitir a retomada dos centros urbanos e a redução dos índices de tráfico e criminalidade.",
+      "Volta dos Manicômios: estimular o retorno dos hospitais psiquiátricos para tratamento de pessoas com transtornos mentais.",
+    ],
+  },
+  {
     titulo: "Câmera Corporal em Agentes de Trânsito",
     resumo:
       "Obrigatoriedade do uso de câmeras corporais por agentes de trânsito estaduais e municipais. Se os policiais já usam equipamentos de gravação, os agentes de trânsito também devem atuar sob o mesmo padrão — mais proteção ao bom servidor, mais transparência e menos abuso de autoridade.",
