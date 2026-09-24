@@ -10,6 +10,7 @@ import {
   Loader2,
   LogOut,
   Lock,
+  Pencil,
   Plus,
   Trash2,
   Users,
@@ -37,6 +38,8 @@ import {
   adminPetitionSignatures,
   adminSummary,
   adminTogglePetition,
+  adminUpdateEvent,
+  adminUpdatePetition,
   type AdminEventRow,
   type AdminPetitionRow,
   type PersonRow,
@@ -290,7 +293,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 // ----------------------------------------------------------------
 // Aba: Eventos
 // ----------------------------------------------------------------
-type NewEventInput = {
+type EventInput = {
   titulo: string;
   data_evento: string;
   cidade: string;
@@ -299,15 +302,113 @@ type NewEventInput = {
   descricao: string;
 };
 
+// ISO -> valor aceito pelo <input type="datetime-local"> (horário local).
+function toDateTimeLocal(iso: string) {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function EventForm({
+  initial,
+  pending,
+  submitLabel,
+  onSubmit,
+}: {
+  initial?: AdminEventRow;
+  pending: boolean;
+  submitLabel: string;
+  onSubmit: (data: EventInput) => void;
+}) {
+  const [imagem, setImagem] = useState(initial?.imagem_url ?? "");
+
+  return (
+    <form
+      className="grid gap-4 rounded-lg border bg-card p-5"
+      onSubmit={(e) => {
+        e.preventDefault();
+        const fd = new FormData(e.currentTarget);
+        const dataHora = String(fd.get("data_evento") || "");
+        onSubmit({
+          titulo: String(fd.get("titulo") || ""),
+          data_evento: new Date(dataHora).toISOString(),
+          cidade: String(fd.get("cidade") || ""),
+          local: String(fd.get("local") || ""),
+          imagem,
+          descricao: String(fd.get("descricao") || ""),
+        });
+      }}
+    >
+      <div className="grid gap-2">
+        <Label htmlFor="ev-titulo">Título *</Label>
+        <Input
+          id="ev-titulo"
+          name="titulo"
+          required
+          defaultValue={initial?.titulo}
+          placeholder="Happy Hour do Debate"
+        />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-2">
+          <Label htmlFor="ev-data">Data e hora *</Label>
+          <Input
+            id="ev-data"
+            name="data_evento"
+            type="datetime-local"
+            required
+            defaultValue={initial ? toDateTimeLocal(initial.data_evento) : undefined}
+          />
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="ev-cidade">Cidade</Label>
+          <Input
+            id="ev-cidade"
+            name="cidade"
+            defaultValue={initial?.cidade ?? undefined}
+            placeholder="Curitiba"
+          />
+        </div>
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="ev-local">Local</Label>
+        <Input
+          id="ev-local"
+          name="local"
+          defaultValue={initial?.local ?? undefined}
+          placeholder="Bar do Didi — Av. Sete de Setembro, 3751"
+        />
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="ev-imagem">Imagem</Label>
+        <ImageUpload id="ev-imagem" value={imagem} onChange={setImagem} />
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="ev-descricao">Descrição</Label>
+        <Textarea
+          id="ev-descricao"
+          name="descricao"
+          rows={4}
+          defaultValue={initial?.descricao ?? undefined}
+        />
+      </div>
+      <Button type="submit" disabled={pending} className="justify-self-start">
+        {pending ? "Salvando..." : submitLabel}
+      </Button>
+    </form>
+  );
+}
+
 function EventsTab({ enabled }: { enabled: boolean }) {
   const queryClient = useQueryClient();
   const listFn = useServerFn(adminListEvents);
   const createFn = useServerFn(adminCreateEvent);
+  const updateFn = useServerFn(adminUpdateEvent);
   const deleteFn = useServerFn(adminDeleteEvent);
   const registrationsFn = useServerFn(adminEventRegistrations);
 
   const [showForm, setShowForm] = useState(false);
-  const [imagem, setImagem] = useState("");
+  const [editing, setEditing] = useState<AdminEventRow | null>(null);
   const [selected, setSelected] = useState<AdminEventRow | null>(null);
 
   const events = useQuery({
@@ -323,7 +424,7 @@ function EventsTab({ enabled }: { enabled: boolean }) {
   });
 
   const create = useMutation({
-    mutationFn: (data: NewEventInput) => createFn({ data }),
+    mutationFn: (data: EventInput) => createFn({ data }),
     onSuccess: (res) => {
       if (!res.ok) {
         toast.error(res.error);
@@ -331,10 +432,23 @@ function EventsTab({ enabled }: { enabled: boolean }) {
       }
       toast.success("Evento criado!");
       setShowForm(false);
-      setImagem("");
       queryClient.invalidateQueries({ queryKey: ["admin"] });
     },
     onError: () => toast.error("Não foi possível criar o evento."),
+  });
+
+  const update = useMutation({
+    mutationFn: (data: EventInput & { id: number }) => updateFn({ data }),
+    onSuccess: (res) => {
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success("Evento atualizado!");
+      setEditing(null);
+      queryClient.invalidateQueries({ queryKey: ["admin"] });
+    },
+    onError: () => toast.error("Não foi possível salvar o evento."),
   });
 
   const remove = useMutation({
@@ -366,6 +480,24 @@ function EventsTab({ enabled }: { enabled: boolean }) {
     );
   }
 
+  if (editing) {
+    return (
+      <div className="space-y-4">
+        <Button variant="ghost" size="sm" onClick={() => setEditing(null)}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Voltar para os eventos
+        </Button>
+        <SectionTitle>Editar evento</SectionTitle>
+        <EventForm
+          initial={editing}
+          pending={update.isPending}
+          submitLabel="Salvar alterações"
+          onSubmit={(data) => update.mutate({ ...data, id: editing.id })}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-3">
@@ -377,56 +509,11 @@ function EventsTab({ enabled }: { enabled: boolean }) {
       </div>
 
       {showForm && (
-        <form
-          className="grid gap-4 rounded-lg border bg-card p-5"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const fd = new FormData(e.currentTarget);
-            const dataHora = String(fd.get("data_evento") || "");
-            create.mutate({
-              titulo: String(fd.get("titulo") || ""),
-              data_evento: new Date(dataHora).toISOString(),
-              cidade: String(fd.get("cidade") || ""),
-              local: String(fd.get("local") || ""),
-              imagem,
-              descricao: String(fd.get("descricao") || ""),
-            });
-          }}
-        >
-          <div className="grid gap-2">
-            <Label htmlFor="ev-titulo">Título *</Label>
-            <Input id="ev-titulo" name="titulo" required placeholder="Happy Hour do Debate" />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid gap-2">
-              <Label htmlFor="ev-data">Data e hora *</Label>
-              <Input id="ev-data" name="data_evento" type="datetime-local" required />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="ev-cidade">Cidade</Label>
-              <Input id="ev-cidade" name="cidade" placeholder="Curitiba" />
-            </div>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="ev-local">Local</Label>
-            <Input
-              id="ev-local"
-              name="local"
-              placeholder="Bar do Didi — Av. Sete de Setembro, 3751"
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="ev-imagem">Imagem</Label>
-            <ImageUpload id="ev-imagem" value={imagem} onChange={setImagem} />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="ev-descricao">Descrição</Label>
-            <Textarea id="ev-descricao" name="descricao" rows={4} />
-          </div>
-          <Button type="submit" disabled={create.isPending} className="justify-self-start">
-            {create.isPending ? "Salvando..." : "Publicar evento"}
-          </Button>
-        </form>
+        <EventForm
+          pending={create.isPending}
+          submitLabel="Publicar evento"
+          onSubmit={(data) => create.mutate(data)}
+        />
       )}
 
       <DataTable
@@ -439,6 +526,9 @@ function EventsTab({ enabled }: { enabled: boolean }) {
           <div className="flex justify-end gap-2">
             <Button variant="outline" size="sm" onClick={() => setSelected(row)}>
               Ver inscritos ({row.inscritos})
+            </Button>
+            <Button variant="ghost" size="sm" title="Editar" onClick={() => setEditing(row)}>
+              <Pencil className="h-4 w-4" />
             </Button>
             <Button
               variant="ghost"
@@ -465,23 +555,96 @@ function EventsTab({ enabled }: { enabled: boolean }) {
 // ----------------------------------------------------------------
 // Aba: Abaixo-assinados
 // ----------------------------------------------------------------
-type NewPetitionInput = {
+type PetitionInput = {
   titulo: string;
   descricao: string;
   meta: number;
   imagem: string;
 };
 
+function PetitionForm({
+  initial,
+  pending,
+  submitLabel,
+  onSubmit,
+}: {
+  initial?: AdminPetitionRow;
+  pending: boolean;
+  submitLabel: string;
+  onSubmit: (data: PetitionInput) => void;
+}) {
+  const [imagem, setImagem] = useState(initial?.imagem_url ?? "");
+
+  return (
+    <form
+      className="grid gap-4 rounded-lg border bg-card p-5"
+      onSubmit={(e) => {
+        e.preventDefault();
+        const fd = new FormData(e.currentTarget);
+        onSubmit({
+          titulo: String(fd.get("titulo") || ""),
+          descricao: String(fd.get("descricao") || ""),
+          meta: Number(fd.get("meta") || 200),
+          imagem,
+        });
+      }}
+    >
+      <div className="grid gap-2">
+        <Label htmlFor="pt-titulo">Título *</Label>
+        <Input
+          id="pt-titulo"
+          name="titulo"
+          required
+          defaultValue={initial?.titulo}
+          placeholder="Abaixo-assinado por mais segurança no centro"
+        />
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="pt-descricao">Descrição *</Label>
+        <Textarea
+          id="pt-descricao"
+          name="descricao"
+          rows={4}
+          required
+          defaultValue={initial?.descricao}
+          placeholder="Explique a causa e por que as pessoas devem assinar."
+        />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-2">
+          <Label htmlFor="pt-meta">Meta de assinaturas *</Label>
+          <Input
+            id="pt-meta"
+            name="meta"
+            type="number"
+            min={1}
+            defaultValue={initial?.meta ?? 200}
+            required
+          />
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="pt-imagem">Imagem</Label>
+          <ImageUpload id="pt-imagem" value={imagem} onChange={setImagem} />
+        </div>
+      </div>
+      <Button type="submit" disabled={pending} className="justify-self-start">
+        {pending ? "Salvando..." : submitLabel}
+      </Button>
+    </form>
+  );
+}
+
 function PetitionsTab({ enabled }: { enabled: boolean }) {
   const queryClient = useQueryClient();
   const listFn = useServerFn(adminListPetitions);
   const createFn = useServerFn(adminCreatePetition);
+  const updateFn = useServerFn(adminUpdatePetition);
   const deleteFn = useServerFn(adminDeletePetition);
   const toggleFn = useServerFn(adminTogglePetition);
   const signaturesFn = useServerFn(adminPetitionSignatures);
 
   const [showForm, setShowForm] = useState(false);
-  const [imagem, setImagem] = useState("");
+  const [editing, setEditing] = useState<AdminPetitionRow | null>(null);
   const [selected, setSelected] = useState<AdminPetitionRow | null>(null);
 
   const petitions = useQuery({
@@ -497,7 +660,7 @@ function PetitionsTab({ enabled }: { enabled: boolean }) {
   });
 
   const create = useMutation({
-    mutationFn: (data: NewPetitionInput) => createFn({ data }),
+    mutationFn: (data: PetitionInput) => createFn({ data }),
     onSuccess: (res) => {
       if (!res.ok) {
         toast.error(res.error);
@@ -505,10 +668,23 @@ function PetitionsTab({ enabled }: { enabled: boolean }) {
       }
       toast.success("Abaixo-assinado criado!");
       setShowForm(false);
-      setImagem("");
       queryClient.invalidateQueries({ queryKey: ["admin"] });
     },
     onError: () => toast.error("Não foi possível criar o abaixo-assinado."),
+  });
+
+  const update = useMutation({
+    mutationFn: (data: PetitionInput & { id: number }) => updateFn({ data }),
+    onSuccess: (res) => {
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success("Abaixo-assinado atualizado!");
+      setEditing(null);
+      queryClient.invalidateQueries({ queryKey: ["admin"] });
+    },
+    onError: () => toast.error("Não foi possível salvar o abaixo-assinado."),
   });
 
   const remove = useMutation({
@@ -546,6 +722,24 @@ function PetitionsTab({ enabled }: { enabled: boolean }) {
     );
   }
 
+  if (editing) {
+    return (
+      <div className="space-y-4">
+        <Button variant="ghost" size="sm" onClick={() => setEditing(null)}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Voltar para os abaixo-assinados
+        </Button>
+        <SectionTitle>Editar abaixo-assinado</SectionTitle>
+        <PetitionForm
+          initial={editing}
+          pending={update.isPending}
+          submitLabel="Salvar alterações"
+          onSubmit={(data) => update.mutate({ ...data, id: editing.id })}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-3">
@@ -557,52 +751,11 @@ function PetitionsTab({ enabled }: { enabled: boolean }) {
       </div>
 
       {showForm && (
-        <form
-          className="grid gap-4 rounded-lg border bg-card p-5"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const fd = new FormData(e.currentTarget);
-            create.mutate({
-              titulo: String(fd.get("titulo") || ""),
-              descricao: String(fd.get("descricao") || ""),
-              meta: Number(fd.get("meta") || 200),
-              imagem,
-            });
-          }}
-        >
-          <div className="grid gap-2">
-            <Label htmlFor="pt-titulo">Título *</Label>
-            <Input
-              id="pt-titulo"
-              name="titulo"
-              required
-              placeholder="Abaixo-assinado por mais segurança no centro"
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="pt-descricao">Descrição *</Label>
-            <Textarea
-              id="pt-descricao"
-              name="descricao"
-              rows={4}
-              required
-              placeholder="Explique a causa e por que as pessoas devem assinar."
-            />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid gap-2">
-              <Label htmlFor="pt-meta">Meta de assinaturas *</Label>
-              <Input id="pt-meta" name="meta" type="number" min={1} defaultValue={200} required />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="pt-imagem">Imagem</Label>
-              <ImageUpload id="pt-imagem" value={imagem} onChange={setImagem} />
-            </div>
-          </div>
-          <Button type="submit" disabled={create.isPending} className="justify-self-start">
-            {create.isPending ? "Salvando..." : "Publicar abaixo-assinado"}
-          </Button>
-        </form>
+        <PetitionForm
+          pending={create.isPending}
+          submitLabel="Publicar abaixo-assinado"
+          onSubmit={(data) => create.mutate(data)}
+        />
       )}
 
       <DataTable
@@ -615,6 +768,9 @@ function PetitionsTab({ enabled }: { enabled: boolean }) {
           <div className="flex justify-end gap-2">
             <Button variant="outline" size="sm" onClick={() => setSelected(row)}>
               Ver assinaturas ({row.assinaturas})
+            </Button>
+            <Button variant="ghost" size="sm" title="Editar" onClick={() => setEditing(row)}>
+              <Pencil className="h-4 w-4" />
             </Button>
             <Button
               variant="ghost"

@@ -146,6 +146,19 @@ async function saveImage(
   return `/imagens/${row.id}`;
 }
 
+// Na edição: "" remove a imagem, um data URL troca por uma nova e qualquer
+// outro valor mantém a imagem atual. Devolve a URL a gravar.
+async function replaceImage(
+  sql: NonNullable<Awaited<ReturnType<typeof adminDb>>>,
+  current: string | null,
+  imagem: string,
+): Promise<string | null> {
+  if (imagem && !imagem.startsWith("data:")) return current;
+  const next = await saveImage(sql, imagem);
+  await deleteImage(sql, current);
+  return next;
+}
+
 // Apaga a imagem enviada pelo painel, se a URL apontar para uma.
 async function deleteImage(
   sql: NonNullable<Awaited<ReturnType<typeof adminDb>>>,
@@ -240,6 +253,40 @@ export const adminCreateEvent = createServerFn({ method: "POST" })
 
 const idSchema = z.object({ id: z.number().int().positive() });
 
+// Na edição a imagem pode ser um data URL novo, "" (remover) ou a URL atual (manter).
+const editImageSchema = z.union([imageSchema, z.string().regex(/^\/[\w./-]+$/)]);
+
+const updateEventSchema = createEventSchema
+  .omit({ slug: true, imagem: true })
+  .extend({ id: z.number().int().positive(), imagem: editImageSchema });
+
+export const adminUpdateEvent = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => updateEventSchema.parse(data))
+  .handler(async ({ data }) => {
+    const sql = await adminDb();
+    if (!sql) return noDb;
+
+    const dataEvento = new Date(data.data_evento);
+    if (Number.isNaN(dataEvento.getTime())) {
+      return { ok: false as const, error: "Data inválida." };
+    }
+
+    const [current] = await sql<{ imagem_url: string | null }[]>`
+      SELECT imagem_url FROM events WHERE id = ${data.id}
+    `;
+    if (!current) return { ok: false as const, error: "Evento não encontrado." };
+
+    const imagemUrl = await replaceImage(sql, current.imagem_url, data.imagem ?? "");
+    await sql`
+      UPDATE events
+      SET titulo = ${data.titulo}, descricao = ${data.descricao || null},
+          local = ${data.local || null}, cidade = ${data.cidade || null},
+          data_evento = ${dataEvento}, imagem_url = ${imagemUrl}
+      WHERE id = ${data.id}
+    `;
+    return { ok: true as const };
+  });
+
 export const adminDeleteEvent = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => idSchema.parse(data))
   .handler(async ({ data }) => {
@@ -305,6 +352,31 @@ export const adminCreatePetition = createServerFn({ method: "POST" })
       VALUES (${slug}, ${data.titulo}, ${data.descricao}, ${data.meta}, ${imagemUrl})
     `;
     return { ok: true as const, slug };
+  });
+
+const updatePetitionSchema = createPetitionSchema
+  .omit({ slug: true, imagem: true })
+  .extend({ id: z.number().int().positive(), imagem: editImageSchema });
+
+export const adminUpdatePetition = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => updatePetitionSchema.parse(data))
+  .handler(async ({ data }) => {
+    const sql = await adminDb();
+    if (!sql) return noDb;
+
+    const [current] = await sql<{ imagem_url: string | null }[]>`
+      SELECT imagem_url FROM petitions WHERE id = ${data.id}
+    `;
+    if (!current) return { ok: false as const, error: "Abaixo-assinado não encontrado." };
+
+    const imagemUrl = await replaceImage(sql, current.imagem_url, data.imagem ?? "");
+    await sql`
+      UPDATE petitions
+      SET titulo = ${data.titulo}, descricao = ${data.descricao},
+          meta = ${data.meta}, imagem_url = ${imagemUrl}
+      WHERE id = ${data.id}
+    `;
+    return { ok: true as const };
   });
 
 export const adminDeletePetition = createServerFn({ method: "POST" })
