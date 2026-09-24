@@ -139,7 +139,18 @@ function Lgpd() {
             </p>
           </Bloco>
 
-          <Bloco titulo="9. Alterações desta política">
+          <Bloco titulo="9. Cookies">
+            <p>
+              Usamos cookies essenciais, necessários para o funcionamento do site (por exemplo,
+              para manter o acesso à área administrativa). Cookies opcionais, como os de medição
+              de audiência, só são usados se você clicar em <strong>Aceitar</strong> no aviso
+              exibido na primeira visita. Se escolher <strong>Só essenciais</strong>, apenas
+              os cookies necessários serão usados. Para mudar sua escolha, limpe os dados do
+              site no seu navegador e o aviso aparecerá novamente.
+            </p>
+          </Bloco>
+
+          <Bloco titulo="10. Alterações desta política">
             <p>
               Esta política pode ser atualizada a qualquer momento. A data da última revisão
               estará sempre indicada no topo desta página.

@@ -93,6 +93,30 @@ CREATE TABLE IF NOT EXISTS images (
 );
 
 -- ------------------------------------------------------------
+-- Consentimento LGPD
+--
+-- `consentimento_em` guarda quando a pessoa marcou a caixinha de
+-- concordância com a Política de Privacidade. Quem se cadastrou antes da
+-- caixinha existir fica com a data do próprio cadastro (created_at).
+-- Tudo idempotente: pode rodar a cada deploy.
+-- ------------------------------------------------------------
+ALTER TABLE volunteers          ADD COLUMN IF NOT EXISTS consentimento_em TIMESTAMPTZ;
+ALTER TABLE event_registrations ADD COLUMN IF NOT EXISTS consentimento_em TIMESTAMPTZ;
+ALTER TABLE petition_signatures ADD COLUMN IF NOT EXISTS consentimento_em TIMESTAMPTZ;
+
+UPDATE volunteers          SET consentimento_em = created_at WHERE consentimento_em IS NULL;
+UPDATE event_registrations SET consentimento_em = created_at WHERE consentimento_em IS NULL;
+UPDATE petition_signatures SET consentimento_em = created_at WHERE consentimento_em IS NULL;
+
+ALTER TABLE volunteers          ALTER COLUMN consentimento_em SET DEFAULT now();
+ALTER TABLE event_registrations ALTER COLUMN consentimento_em SET DEFAULT now();
+ALTER TABLE petition_signatures ALTER COLUMN consentimento_em SET DEFAULT now();
+
+ALTER TABLE volunteers          ALTER COLUMN consentimento_em SET NOT NULL;
+ALTER TABLE event_registrations ALTER COLUMN consentimento_em SET NOT NULL;
+ALTER TABLE petition_signatures ALTER COLUMN consentimento_em SET NOT NULL;
+
+-- ------------------------------------------------------------
 -- Dados iniciais — aplicados UMA ÚNICA VEZ
 --
 -- O bloco abaixo só roda enquanto a chave não estiver registrada em

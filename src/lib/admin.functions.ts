@@ -36,6 +36,7 @@ export type VolunteerRow = {
   bairro: string | null;
   mensagem: string | null;
   created_at: string;
+  consentimento_em: string;
 };
 
 export type PersonRow = {
@@ -45,6 +46,7 @@ export type PersonRow = {
   estado: string;
   telefone: string;
   created_at: string;
+  consentimento_em: string;
 };
 
 const noDb = { ok: false as const, error: "DATABASE_URL não configurada neste ambiente." };
@@ -305,12 +307,16 @@ export const adminEventRegistrations = createServerFn({ method: "GET" })
     const sql = await adminDb();
     if (!sql) return [];
     const rows = await sql<PersonRow[]>`
-      SELECT id, nome, cidade, estado, telefone, created_at
+      SELECT id, nome, cidade, estado, telefone, created_at, consentimento_em
       FROM event_registrations
       WHERE event_id = ${data.id}
       ORDER BY created_at DESC
     `;
-    return rows.map((r) => ({ ...r, created_at: new Date(r.created_at).toISOString() }));
+    return rows.map((r) => ({
+      ...r,
+      created_at: new Date(r.created_at).toISOString(),
+      consentimento_em: new Date(r.consentimento_em).toISOString(),
+    }));
   });
 
 // ----------------------------------------------------------------
@@ -408,12 +414,16 @@ export const adminPetitionSignatures = createServerFn({ method: "GET" })
     const sql = await adminDb();
     if (!sql) return [];
     const rows = await sql<PersonRow[]>`
-      SELECT id, nome, cidade, estado, telefone, created_at
+      SELECT id, nome, cidade, estado, telefone, created_at, consentimento_em
       FROM petition_signatures
       WHERE petition_id = ${data.id}
       ORDER BY created_at DESC
     `;
-    return rows.map((r) => ({ ...r, created_at: new Date(r.created_at).toISOString() }));
+    return rows.map((r) => ({
+      ...r,
+      created_at: new Date(r.created_at).toISOString(),
+      consentimento_em: new Date(r.consentimento_em).toISOString(),
+    }));
   });
 
 // ----------------------------------------------------------------
@@ -424,10 +434,14 @@ export const adminListVolunteers = createServerFn({ method: "GET" }).handler(
     const sql = await adminDb();
     if (!sql) return [];
     const rows = await sql<VolunteerRow[]>`
-      SELECT id, nome, email, telefone, cidade, bairro, mensagem, created_at
+      SELECT id, nome, email, telefone, cidade, bairro, mensagem, created_at, consentimento_em
       FROM volunteers
       ORDER BY created_at DESC
     `;
-    return rows.map((r) => ({ ...r, created_at: new Date(r.created_at).toISOString() }));
+    return rows.map((r) => ({
+      ...r,
+      created_at: new Date(r.created_at).toISOString(),
+      consentimento_em: new Date(r.consentimento_em).toISOString(),
+    }));
   },
 );
