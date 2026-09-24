@@ -17,7 +17,7 @@ export const Route = createFileRoute("/lgpd")({
 });
 
 function Lgpd() {
-  const atualizacao = "14 de julho de 2026";
+  const atualizacao = "24 de setembro de 2026";
 
   return (
     <SiteLayout>
@@ -95,6 +95,15 @@ function Lgpd() {
               apoiam a operação da campanha (por exemplo, hospedagem e ferramentas de
               comunicação), sempre limitados à finalidade informada, bem como com autoridades
               públicas quando exigido por lei.
+            </p>
+            <p>
+              Os dados de apoiadores (cadastro de voluntário, apoio a causas e abaixo-assinados)
+              também poderão ser compartilhados com <strong>campanhas e candidaturas aliadas do
+              estado em que você reside</strong>, para fins de mobilização política, comunicação
+              de eventos e ações de campanha. Esse compartilhamento se limita aos dados
+              necessários (como nome, telefone, e-mail, cidade e estado) e ocorre com base no
+              consentimento que você fornece ao preencher nossos formulários. Você pode revogar
+              esse consentimento a qualquer momento pelos canais indicados no item 8.
             </p>
           </Bloco>
 

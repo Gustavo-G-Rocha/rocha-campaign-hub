@@ -4,7 +4,7 @@ export const siteConfig = {
   slogan: "Transformando nosso Estado com você",
   whatsapp: "554188237584", // +55 41 8823-7584 (só dígitos, com DDI)
   whatsappLabel: "Falar no WhatsApp",
-  email: "contato@willianrocha.com.br",
+  email: "campanhawillrocha@gmail.com",
   cidade: "Paraná",
   doarUrl: "https://queroapoiar.com.br/willianrocha",
   // Loja de material de campanha (site externo)
