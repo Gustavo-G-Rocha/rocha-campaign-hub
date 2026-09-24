@@ -79,6 +79,20 @@ CREATE TABLE IF NOT EXISTS petition_signatures (
 CREATE INDEX IF NOT EXISTS idx_signatures_petition ON petition_signatures (petition_id);
 
 -- ------------------------------------------------------------
+-- Imagens enviadas pelo painel (/admin)
+--
+-- Ficam no próprio banco porque o servidor não tem disco persistente.
+-- São servidas em /imagens/<id> e referenciadas em events.imagem_url e
+-- petitions.imagem_url.
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS images (
+  id         SERIAL PRIMARY KEY,
+  mime       TEXT NOT NULL,
+  data       BYTEA NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- ------------------------------------------------------------
 -- Dados iniciais — aplicados UMA ÚNICA VEZ
 --
 -- O bloco abaixo só roda enquanto a chave não estiver registrada em

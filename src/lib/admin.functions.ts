@@ -117,6 +117,45 @@ async function uniqueSlug(
 }
 
 // ----------------------------------------------------------------
+// Imagens enviadas pelo painel
+// ----------------------------------------------------------------
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+
+// Imagem enviada pelo navegador como data URL (ex.: "data:image/webp;base64,...").
+const imageSchema = z
+  .string()
+  .regex(/^data:image\/(webp|jpeg|png|gif);base64,[A-Za-z0-9+/=]+$/, "Imagem inválida")
+  .optional()
+  .or(z.literal(""));
+
+// Grava a imagem no banco e devolve a URL pública (/imagens/<id>).
+async function saveImage(
+  sql: NonNullable<Awaited<ReturnType<typeof adminDb>>>,
+  dataUrl: string | undefined,
+): Promise<string | null> {
+  if (!dataUrl) return null;
+  const [header, base64] = dataUrl.split(",", 2);
+  const mime = header.slice("data:".length, header.indexOf(";"));
+  const bytes = Buffer.from(base64, "base64");
+  if (bytes.length > MAX_IMAGE_BYTES) {
+    throw new Error("Imagem muito grande (máximo 5 MB).");
+  }
+  const [row] = await sql<{ id: number }[]>`
+    INSERT INTO images (mime, data) VALUES (${mime}, ${bytes}) RETURNING id
+  `;
+  return `/imagens/${row.id}`;
+}
+
+// Apaga a imagem enviada pelo painel, se a URL apontar para uma.
+async function deleteImage(
+  sql: NonNullable<Awaited<ReturnType<typeof adminDb>>>,
+  url: string | null | undefined,
+) {
+  const match = url?.match(/^\/imagens\/(\d+)$/);
+  if (match) await sql`DELETE FROM images WHERE id = ${Number(match[1])}`;
+}
+
+// ----------------------------------------------------------------
 // Visão geral
 // ----------------------------------------------------------------
 export const adminSummary = createServerFn({ method: "GET" }).handler(async () => {
@@ -174,7 +213,7 @@ const createEventSchema = z.object({
   local: z.string().optional().or(z.literal("")),
   cidade: z.string().optional().or(z.literal("")),
   data_evento: z.string().min(4, "Informe a data e a hora"),
-  imagem_url: z.string().optional().or(z.literal("")),
+  imagem: imageSchema,
   slug: z.string().optional().or(z.literal("")),
 });
 
@@ -190,10 +229,11 @@ export const adminCreateEvent = createServerFn({ method: "POST" })
     }
 
     const slug = await uniqueSlug(sql, "events", data.slug || data.titulo);
+    const imagemUrl = await saveImage(sql, data.imagem);
     await sql`
       INSERT INTO events (slug, titulo, descricao, local, cidade, data_evento, imagem_url)
       VALUES (${slug}, ${data.titulo}, ${data.descricao || null}, ${data.local || null},
-              ${data.cidade || null}, ${dataEvento}, ${data.imagem_url || null})
+              ${data.cidade || null}, ${dataEvento}, ${imagemUrl})
     `;
     return { ok: true as const, slug };
   });
@@ -205,7 +245,10 @@ export const adminDeleteEvent = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const sql = await adminDb();
     if (!sql) return noDb;
-    await sql`DELETE FROM events WHERE id = ${data.id}`;
+    const [row] = await sql<{ imagem_url: string | null }[]>`
+      DELETE FROM events WHERE id = ${data.id} RETURNING imagem_url
+    `;
+    await deleteImage(sql, row?.imagem_url);
     return { ok: true as const };
   });
 
@@ -245,7 +288,7 @@ const createPetitionSchema = z.object({
   titulo: z.string().min(3, "Informe o título"),
   descricao: z.string().min(3, "Informe a descrição"),
   meta: z.number().int().positive().max(1000000),
-  imagem_url: z.string().optional().or(z.literal("")),
+  imagem: imageSchema,
   slug: z.string().optional().or(z.literal("")),
 });
 
@@ -256,9 +299,10 @@ export const adminCreatePetition = createServerFn({ method: "POST" })
     if (!sql) return noDb;
 
     const slug = await uniqueSlug(sql, "petitions", data.slug || data.titulo);
+    const imagemUrl = await saveImage(sql, data.imagem);
     await sql`
       INSERT INTO petitions (slug, titulo, descricao, meta, imagem_url)
-      VALUES (${slug}, ${data.titulo}, ${data.descricao}, ${data.meta}, ${data.imagem_url || null})
+      VALUES (${slug}, ${data.titulo}, ${data.descricao}, ${data.meta}, ${imagemUrl})
     `;
     return { ok: true as const, slug };
   });
@@ -268,7 +312,10 @@ export const adminDeletePetition = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const sql = await adminDb();
     if (!sql) return noDb;
-    await sql`DELETE FROM petitions WHERE id = ${data.id}`;
+    const [row] = await sql<{ imagem_url: string | null }[]>`
+      DELETE FROM petitions WHERE id = ${data.id} RETURNING imagem_url
+    `;
+    await deleteImage(sql, row?.imagem_url);
     return { ok: true as const };
   });
 

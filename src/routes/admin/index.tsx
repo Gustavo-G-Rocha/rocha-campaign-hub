@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DataTable, type DataColumn } from "@/components/admin/data-table";
+import { ImageUpload } from "@/components/admin/image-upload";
 import { formatDateTime } from "@/lib/csv";
 import {
   adminCreateEvent,
@@ -294,7 +295,7 @@ type NewEventInput = {
   data_evento: string;
   cidade: string;
   local: string;
-  imagem_url: string;
+  imagem: string;
   descricao: string;
 };
 
@@ -306,6 +307,7 @@ function EventsTab({ enabled }: { enabled: boolean }) {
   const registrationsFn = useServerFn(adminEventRegistrations);
 
   const [showForm, setShowForm] = useState(false);
+  const [imagem, setImagem] = useState("");
   const [selected, setSelected] = useState<AdminEventRow | null>(null);
 
   const events = useQuery({
@@ -329,6 +331,7 @@ function EventsTab({ enabled }: { enabled: boolean }) {
       }
       toast.success("Evento criado!");
       setShowForm(false);
+      setImagem("");
       queryClient.invalidateQueries({ queryKey: ["admin"] });
     },
     onError: () => toast.error("Não foi possível criar o evento."),
@@ -385,7 +388,7 @@ function EventsTab({ enabled }: { enabled: boolean }) {
               data_evento: new Date(dataHora).toISOString(),
               cidade: String(fd.get("cidade") || ""),
               local: String(fd.get("local") || ""),
-              imagem_url: String(fd.get("imagem_url") || ""),
+              imagem,
               descricao: String(fd.get("descricao") || ""),
             });
           }}
@@ -413,8 +416,8 @@ function EventsTab({ enabled }: { enabled: boolean }) {
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="ev-imagem">Imagem (URL)</Label>
-            <Input id="ev-imagem" name="imagem_url" placeholder="/banner-evento.webp" />
+            <Label htmlFor="ev-imagem">Imagem</Label>
+            <ImageUpload id="ev-imagem" value={imagem} onChange={setImagem} />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="ev-descricao">Descrição</Label>
@@ -466,7 +469,7 @@ type NewPetitionInput = {
   titulo: string;
   descricao: string;
   meta: number;
-  imagem_url: string;
+  imagem: string;
 };
 
 function PetitionsTab({ enabled }: { enabled: boolean }) {
@@ -478,6 +481,7 @@ function PetitionsTab({ enabled }: { enabled: boolean }) {
   const signaturesFn = useServerFn(adminPetitionSignatures);
 
   const [showForm, setShowForm] = useState(false);
+  const [imagem, setImagem] = useState("");
   const [selected, setSelected] = useState<AdminPetitionRow | null>(null);
 
   const petitions = useQuery({
@@ -501,6 +505,7 @@ function PetitionsTab({ enabled }: { enabled: boolean }) {
       }
       toast.success("Abaixo-assinado criado!");
       setShowForm(false);
+      setImagem("");
       queryClient.invalidateQueries({ queryKey: ["admin"] });
     },
     onError: () => toast.error("Não foi possível criar o abaixo-assinado."),
@@ -561,7 +566,7 @@ function PetitionsTab({ enabled }: { enabled: boolean }) {
               titulo: String(fd.get("titulo") || ""),
               descricao: String(fd.get("descricao") || ""),
               meta: Number(fd.get("meta") || 200),
-              imagem_url: String(fd.get("imagem_url") || ""),
+              imagem,
             });
           }}
         >
@@ -590,8 +595,8 @@ function PetitionsTab({ enabled }: { enabled: boolean }) {
               <Input id="pt-meta" name="meta" type="number" min={1} defaultValue={200} required />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="pt-imagem">Imagem (URL)</Label>
-              <Input id="pt-imagem" name="imagem_url" placeholder="/banner-causa.webp" />
+              <Label htmlFor="pt-imagem">Imagem</Label>
+              <ImageUpload id="pt-imagem" value={imagem} onChange={setImagem} />
             </div>
           </div>
           <Button type="submit" disabled={create.isPending} className="justify-self-start">
