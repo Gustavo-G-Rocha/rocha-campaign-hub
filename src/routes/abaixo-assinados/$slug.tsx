@@ -65,6 +65,7 @@ function PetitionPage() {
       const res = await sign({
         data: {
           consentimento: fd.get("consentimento") === "on",
+          compartilhamento: fd.get("compartilhamento") === "on",
           slug,
           nome: String(fd.get("nome") || ""),
           cidade: String(fd.get("cidade") || ""),

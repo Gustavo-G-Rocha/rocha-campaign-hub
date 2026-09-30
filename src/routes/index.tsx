@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Users, Calendar, FileSignature, ShoppingBag } from "lucide-react";
+import { ArrowRight, Users, Calendar, FileSignature } from "lucide-react";
 import { SiteLayout } from "@/components/site-layout";
 import { siteConfig } from "@/lib/site-config";
 import heroCover480 from "@/assets/hero-cover-480.webp";
@@ -40,20 +40,12 @@ function Index() {
           >
             Doar
           </Link>
-          <a
-            href={siteConfig.materialUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-md border-2 border-brand-yellow px-6 py-3 text-sm font-bold uppercase tracking-wide text-brand-yellow transition-colors hover:bg-brand-yellow hover:text-brand-dark"
-          >
-            Pedir material <ShoppingBag className="h-4 w-4" />
-          </a>
         </div>
       </section>
 
       {/* CTA CARDS */}
       <section className="bg-brand-dark py-14">
-        <div className="mx-auto grid max-w-6xl gap-6 px-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mx-auto grid max-w-6xl gap-6 px-4 sm:grid-cols-2 lg:grid-cols-3">
           <FeatureCard
             to="/voluntarios"
             icon={Users}
@@ -71,12 +63,6 @@ function Index() {
             icon={FileSignature}
             titulo="Abaixo-assinados"
             texto="Apoie as causas que vão transformar o nosso estado."
-          />
-          <FeatureCard
-            href={siteConfig.materialUrl}
-            icon={ShoppingBag}
-            titulo="Pedir material"
-            texto="Adesivos, camisetas e bandeiras para levar a campanha à sua rua."
           />
         </div>
       </section>
@@ -100,14 +86,11 @@ function Index() {
 
 function FeatureCard({
   to,
-  href,
   icon: Icon,
   titulo,
   texto,
 }: {
-  /** Rota interna. Use `href` para sites externos. */
-  to?: string;
-  href?: string;
+  to: string;
   icon: typeof Users;
   titulo: string;
   texto: string;
@@ -125,16 +108,8 @@ function FeatureCard({
     </>
   );
 
-  if (href) {
-    return (
-      <a href={href} target="_blank" rel="noopener noreferrer" className={cardClass}>
-        {conteudo}
-      </a>
-    );
-  }
-
   return (
-    <Link to={to!} className={cardClass}>
+    <Link to={to} className={cardClass}>
       {conteudo}
     </Link>
   );

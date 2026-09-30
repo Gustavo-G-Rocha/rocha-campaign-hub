@@ -116,6 +116,12 @@ ALTER TABLE volunteers          ALTER COLUMN consentimento_em SET NOT NULL;
 ALTER TABLE event_registrations ALTER COLUMN consentimento_em SET NOT NULL;
 ALTER TABLE petition_signatures ALTER COLUMN consentimento_em SET NOT NULL;
 
+-- Autorização OPCIONAL e separada para compartilhar com outras candidaturas.
+-- Cadastros anteriores ficam FALSE: o aceite antigo vinha embutido no da política.
+ALTER TABLE volunteers          ADD COLUMN IF NOT EXISTS compartilhamento BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE event_registrations ADD COLUMN IF NOT EXISTS compartilhamento BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE petition_signatures ADD COLUMN IF NOT EXISTS compartilhamento BOOLEAN NOT NULL DEFAULT FALSE;
+
 -- ------------------------------------------------------------
 -- Dados iniciais — aplicados UMA ÚNICA VEZ
 --
@@ -142,7 +148,7 @@ BEGIN
   VALUES
     ('happyhour-23-08',
      'Happy Hour do Debate',
-     'A partir das 19h. Pós-debate: balada show, no local, com possibilidade de apoiador assistir à tua live.',
+     'Encontro de apoiadores para acompanhar o debate, a partir das 19h.',
      'Bar do Didi - Sete (Avenida Sete de Setembro, 3751)', 'Curitiba',
      '2026-08-23 19:00:00-03', NULL)
   ON CONFLICT (slug) DO NOTHING;
@@ -254,15 +260,36 @@ BEGIN
   WHERE p.slug = 'retirada-mesa-solidaria-dr-muricy'
   ON CONFLICT (petition_id, telefone) DO NOTHING;
 
-  -- Abaixo-assinado: Cassação do Vereador Nilso ("Fora Rachador") — sem imagem
+  -- Abaixo-assinado: Cassação do Vereador Nilso — sem imagem
   INSERT INTO petitions (slug, titulo, descricao, meta, imagem_url)
   VALUES
     ('cassacao-vereador-nilso',
      'Abaixo-assinado pela cassação do Vereador Nilso',
-     'Assine pela cassação do mandato do Vereador Nilso. Some sua voz à campanha "Fora Rachador".',
+     'Assine pela cassação do mandato do Vereador Nilso, investigado por rachadinha na Câmara Municipal de Curitiba. Notícia: https://www.bemparana.com.br/publicacao/blogs/politicaemdebate/camara-de-curitiba-vota-parecer-que-pode-levar-a-cassacao-de-vereador-investigado-por-rachadinha/',
      200, NULL)
   ON CONFLICT (slug) DO NOTHING;
 
   INSERT INTO seed_log (chave) VALUES ('dados-iniciais-v1');
+END
+$seed$;
+
+-- ------------------------------------------------------------
+-- Ajustes de conformidade eleitoral (aplicados uma única vez)
+-- ------------------------------------------------------------
+DO $seed$
+BEGIN
+  IF EXISTS (SELECT 1 FROM seed_log WHERE chave = 'conformidade-eleitoral-v1') THEN
+    RETURN;
+  END IF;
+
+  UPDATE petitions
+  SET descricao = 'Assine pela cassação do mandato do Vereador Nilso, investigado por rachadinha na Câmara Municipal de Curitiba. Notícia: https://www.bemparana.com.br/publicacao/blogs/politicaemdebate/camara-de-curitiba-vota-parecer-que-pode-levar-a-cassacao-de-vereador-investigado-por-rachadinha/'
+  WHERE slug = 'cassacao-vereador-nilso' AND descricao ILIKE '%rachador%';
+
+  UPDATE events
+  SET descricao = 'Encontro de apoiadores para acompanhar o debate, a partir das 19h.'
+  WHERE slug = 'happyhour-23-08' AND descricao ILIKE '%balada%';
+
+  INSERT INTO seed_log (chave) VALUES ('conformidade-eleitoral-v1');
 END
 $seed$;

@@ -42,6 +42,7 @@ function Voluntarios() {
       const res = await submit({
         data: {
           consentimento: fd.get("consentimento") === "on",
+          compartilhamento: fd.get("compartilhamento") === "on",
           nome: String(fd.get("nome") || ""),
           telefone: String(fd.get("telefone") || ""),
           email: String(fd.get("email") || ""),

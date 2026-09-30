@@ -17,12 +17,21 @@ export function getCookieConsent(): CookieConsent | null {
   }
 }
 
+const OPEN_EVENT = "open-cookie-preferences";
+
+export function openCookiePreferences() {
+  window.dispatchEvent(new Event(OPEN_EVENT));
+}
+
 export function CookieBanner() {
   const [visible, setVisible] = useState(false);
 
   // Só decide no cliente para não divergir da renderização do servidor.
   useEffect(() => {
     setVisible(getCookieConsent() === null);
+    const open = () => setVisible(true);
+    window.addEventListener(OPEN_EVENT, open);
+    return () => window.removeEventListener(OPEN_EVENT, open);
   }, []);
 
   function choose(value: CookieConsent) {

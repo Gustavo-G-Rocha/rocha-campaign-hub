@@ -74,6 +74,12 @@ function Doar() {
           </a>
           <p className="break-all text-xs text-muted-foreground">{siteConfig.doarUrl}</p>
         </div>
+        <p className="mx-auto mt-6 max-w-md px-6 text-center text-xs leading-relaxed text-muted-foreground">
+          Somente <strong>pessoas físicas</strong> podem doar, informando o CPF, até o limite de{" "}
+          <strong>10% dos rendimentos brutos</strong> declarados no ano de 2025 (Lei nº
+          9.504/1997, art. 23). Doações de empresas são proibidas. CNPJ da candidatura:{" "}
+          {siteConfig.cnpjComite}.
+        </p>
       </section>
     </SiteLayout>
   );

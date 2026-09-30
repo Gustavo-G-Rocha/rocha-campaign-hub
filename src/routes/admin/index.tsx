@@ -66,6 +66,7 @@ const personColumns: DataColumn<PersonRow>[] = [
   { label: "Telefone", value: (r) => r.telefone },
   { label: "Data de envio", value: (r) => formatDateTime(r.created_at) },
   { label: "Aceite LGPD", value: (r) => formatDateTime(r.consentimento_em) },
+  { label: "Compartilhamento", value: (r) => (r.compartilhamento ? "Sim" : "Não") },
 ];
 
 const volunteerColumns: DataColumn<VolunteerRow>[] = [
@@ -77,6 +78,7 @@ const volunteerColumns: DataColumn<VolunteerRow>[] = [
   { label: "Como quer ajudar", value: (r) => r.mensagem ?? "" },
   { label: "Data de envio", value: (r) => formatDateTime(r.created_at) },
   { label: "Aceite LGPD", value: (r) => formatDateTime(r.consentimento_em) },
+  { label: "Compartilhamento", value: (r) => (r.compartilhamento ? "Sim" : "Não") },
 ];
 
 const eventColumns: DataColumn<AdminEventRow>[] = [

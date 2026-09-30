@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { siteConfig } from "@/lib/site-config";
+import { openCookiePreferences } from "@/components/cookie-banner";
 import missaoLogo from "@/assets/missao-logo.webp";
 
 export function SiteFooter() {
@@ -46,14 +47,6 @@ export function SiteFooter() {
             <Link to="/doar" className="hover:text-brand-yellow">
               Doar
             </Link>
-            <a
-              href={siteConfig.materialUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-brand-yellow"
-            >
-              Pedir material
-            </a>
           </nav>
         </div>
         <div className="mt-8 flex flex-col gap-2 border-t border-white/10 pt-6 text-xs">
@@ -62,18 +55,25 @@ export function SiteFooter() {
             {siteConfig.cargo} pelo Estado do {siteConfig.cidade}.
           </p>
           <p>
-            Comitê Financeiro de {siteConfig.nomeCompleto} — CNPJ {siteConfig.cnpjComite}.
-            Conteúdo de responsabilidade do candidato e de seu comitê financeiro, produzido e
-            veiculado sem custo para os cofres públicos, nos termos da Lei nº 9.504/1997 e das
-            resoluções do TSE.
+            CNPJ da candidatura: {siteConfig.cnpjComite} (Eleição 2026 {siteConfig.nomeCompleto}{" "}
+            – {siteConfig.cargo}). Conteúdo de responsabilidade do candidato.
           </p>
           <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
             <span>
               © {new Date().getFullYear()} {siteConfig.candidato}. Todos os direitos reservados.
             </span>
-            <Link to="/lgpd" className="hover:text-brand-yellow">
-              Política de Privacidade (LGPD)
-            </Link>
+            <div className="flex flex-wrap gap-x-6 gap-y-2">
+              <Link to="/lgpd" className="hover:text-brand-yellow">
+                Política de Privacidade (LGPD)
+              </Link>
+              <button
+                type="button"
+                onClick={openCookiePreferences}
+                className="text-left hover:text-brand-yellow"
+              >
+                Preferências de cookies
+              </button>
+            </div>
           </div>
         </div>
       </div>

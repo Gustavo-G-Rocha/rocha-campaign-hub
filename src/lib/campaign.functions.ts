@@ -26,19 +26,7 @@ export type PetitionItem = {
 // ----------------------------------------------------------------
 // Dados de exemplo (usados quando DATABASE_URL não está configurada)
 // ----------------------------------------------------------------
-const demoEvents: EventItem[] = [
-  {
-    id: 1,
-    slug: "happyhour-23-08",
-    titulo: "Happy Hour do Debate",
-    descricao:
-      "A partir das 19h. Pós-debate: balada show, no local, com possibilidade de apoiador assistir à tua live.",
-    local: "Bar do Didi - Sete (Avenida Sete de Setembro, 3751)",
-    cidade: "Curitiba",
-    data_evento: new Date("2026-08-23T19:00:00-03:00").toISOString(),
-    imagem_url: null,
-  },
-];
+const demoEvents: EventItem[] = [];
 
 const demoPetitions: PetitionItem[] = [
   {
@@ -54,22 +42,23 @@ const demoPetitions: PetitionItem[] = [
     slug: "cassacao-vereador-nilso",
     titulo: "Abaixo-assinado pela cassação do Vereador Nilso",
     descricao:
-      'Assine pela cassação do mandato do Vereador Nilso. Some sua voz à campanha "Fora Rachador".',
+      "Assine pela cassação do mandato do Vereador Nilso, investigado por rachadinha na Câmara Municipal de Curitiba. Notícia: https://www.bemparana.com.br/publicacao/blogs/politicaemdebate/camara-de-curitiba-vota-parecer-que-pode-levar-a-cassacao-de-vereador-investigado-por-rachadinha/",
     imagem_url: null,
   },
 ];
 
-// Caixinha "Li e concordo" obrigatória em todos os formulários públicos.
 // O horário do aceite fica em `consentimento_em` (DEFAULT now() no banco).
 const consentimento = z.literal(true, {
   message: "É preciso concordar com a Política de Privacidade",
 });
+const compartilhamento = z.boolean().default(false);
 
 // ----------------------------------------------------------------
 // Voluntários
 // ----------------------------------------------------------------
 const volunteerSchema = z.object({
   consentimento,
+  compartilhamento,
   nome: z.string().min(2, "Informe seu nome"),
   telefone: z.string().min(8, "Informe um telefone válido"),
   email: z.string().email("E-mail inválido").optional().or(z.literal("")),
@@ -87,9 +76,10 @@ export const createVolunteer = createServerFn({ method: "POST" })
     }
     const sql = await getDb();
     await sql`
-      INSERT INTO volunteers (nome, telefone, email, cidade, bairro, mensagem)
+      INSERT INTO volunteers (nome, telefone, email, cidade, bairro, mensagem, compartilhamento)
       VALUES (${data.nome}, ${data.telefone}, ${data.email || null},
-              ${data.cidade || null}, ${data.bairro || null}, ${data.mensagem || null})
+              ${data.cidade || null}, ${data.bairro || null}, ${data.mensagem || null},
+              ${data.compartilhamento})
     `;
     return { ok: true as const, demo: false as const };
   });
@@ -105,6 +95,7 @@ export const getEvents = createServerFn({ method: "GET" }).handler(
     const rows = await sql<EventItem[]>`
       SELECT e.id, e.slug, e.titulo, e.descricao, e.local, e.cidade, e.data_evento, e.imagem_url
       FROM events e
+      WHERE e.data_evento >= now() - interval '1 day'
       ORDER BY e.data_evento ASC
     `;
     return rows.map((r) => ({
@@ -127,7 +118,7 @@ export const getEventBySlug = createServerFn({ method: "GET" })
     const rows = await sql<EventItem[]>`
       SELECT e.id, e.slug, e.titulo, e.descricao, e.local, e.cidade, e.data_evento, e.imagem_url
       FROM events e
-      WHERE e.slug = ${data.slug}
+      WHERE e.slug = ${data.slug} AND e.data_evento >= now() - interval '1 day'
       LIMIT 1
     `;
     if (rows.length === 0) return null;
@@ -136,6 +127,7 @@ export const getEventBySlug = createServerFn({ method: "GET" })
 
 const registerSchema = z.object({
   consentimento,
+  compartilhamento,
   slug: z.string().min(1),
   nome: z.string().min(2, "Informe seu nome"),
   cidade: z.string().min(2, "Informe sua cidade"),
@@ -152,15 +144,18 @@ export const registerEvent = createServerFn({ method: "POST" })
     }
     const sql = await getDb();
     const event = await sql<{ id: number }[]>`
-      SELECT id FROM events WHERE slug = ${data.slug} LIMIT 1
+      SELECT id FROM events
+      WHERE slug = ${data.slug} AND data_evento >= now() - interval '1 day'
+      LIMIT 1
     `;
     if (event.length === 0) {
       return { ok: false as const, error: "Evento não encontrado" };
     }
     try {
       await sql`
-        INSERT INTO event_registrations (event_id, nome, cidade, estado, telefone)
-        VALUES (${event[0].id}, ${data.nome}, ${data.cidade}, ${data.estado}, ${data.telefone})
+        INSERT INTO event_registrations (event_id, nome, cidade, estado, telefone, compartilhamento)
+        VALUES (${event[0].id}, ${data.nome}, ${data.cidade}, ${data.estado}, ${data.telefone},
+                ${data.compartilhamento})
       `;
     } catch {
       return { ok: false as const, error: "Você já se inscreveu neste evento" };
@@ -207,6 +202,7 @@ export const getPetitionBySlug = createServerFn({ method: "GET" })
 
 const signSchema = z.object({
   consentimento,
+  compartilhamento,
   slug: z.string().min(1),
   nome: z.string().min(2, "Informe seu nome"),
   cidade: z.string().min(2, "Informe sua cidade"),
@@ -230,8 +226,9 @@ export const signPetition = createServerFn({ method: "POST" })
     }
     try {
       await sql`
-        INSERT INTO petition_signatures (petition_id, nome, cidade, estado, telefone)
-        VALUES (${petition[0].id}, ${data.nome}, ${data.cidade}, ${data.estado}, ${data.telefone})
+        INSERT INTO petition_signatures (petition_id, nome, cidade, estado, telefone, compartilhamento)
+        VALUES (${petition[0].id}, ${data.nome}, ${data.cidade}, ${data.estado}, ${data.telefone},
+                ${data.compartilhamento})
       `;
     } catch {
       return { ok: false as const, error: "Você já assinou este abaixo-assinado" };
