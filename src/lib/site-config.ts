@@ -1,6 +1,11 @@
 export const siteConfig = {
   candidato: "Willian Rocha",
+  nomeCompleto: "Willian Pedroso da Rocha",
   cargo: "Deputado Estadual",
+  partido: "Partido Missão",
+  partidoSigla: "MISSÃO",
+  numero: "14014",
+  cnpjComite: "68.578.185/0001-50",
   slogan: "Transformando nosso Estado com você",
   whatsapp: "554188237584", // +55 41 8823-7584 (só dígitos, com DDI)
   whatsappLabel: "Falar no WhatsApp",

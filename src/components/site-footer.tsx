@@ -22,6 +22,9 @@ export function SiteFooter() {
               <p className="mt-1 text-sm">
                 Candidato a {siteConfig.cargo} — {siteConfig.cidade}
               </p>
+              <p className="mt-1 text-sm">
+                {siteConfig.partido} — Número {siteConfig.numero}
+              </p>
             </div>
           </div>
           <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
@@ -53,13 +56,25 @@ export function SiteFooter() {
             </a>
           </nav>
         </div>
-        <div className="mt-8 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs sm:flex-row sm:items-center sm:justify-between">
-          <span>
-            © {new Date().getFullYear()} {siteConfig.candidato}. Todos os direitos reservados.
-          </span>
-          <Link to="/lgpd" className="hover:text-brand-yellow">
-            Política de Privacidade (LGPD)
-          </Link>
+        <div className="mt-8 flex flex-col gap-2 border-t border-white/10 pt-6 text-xs">
+          <p>
+            {siteConfig.nomeCompleto} — {siteConfig.partido} ({siteConfig.numero}) — Candidato a{" "}
+            {siteConfig.cargo} pelo Estado do {siteConfig.cidade}.
+          </p>
+          <p>
+            Comitê Financeiro de {siteConfig.nomeCompleto} — CNPJ {siteConfig.cnpjComite}.
+            Conteúdo de responsabilidade do candidato e de seu comitê financeiro, produzido e
+            veiculado sem custo para os cofres públicos, nos termos da Lei nº 9.504/1997 e das
+            resoluções do TSE.
+          </p>
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
+            <span>
+              © {new Date().getFullYear()} {siteConfig.candidato}. Todos os direitos reservados.
+            </span>
+            <Link to="/lgpd" className="hover:text-brand-yellow">
+              Política de Privacidade (LGPD)
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
