@@ -17,7 +17,7 @@ export const Route = createFileRoute("/lgpd")({
 });
 
 function Lgpd() {
-  const atualizacao = "14 de julho de 2026";
+  const atualizacao = "24 de setembro de 2026";
 
   return (
     <SiteLayout>
@@ -96,6 +96,15 @@ function Lgpd() {
               comunicação), sempre limitados à finalidade informada, bem como com autoridades
               públicas quando exigido por lei.
             </p>
+            <p>
+              Os dados de apoiadores (cadastro de voluntário, apoio a causas e abaixo-assinados)
+              também poderão ser compartilhados com <strong>campanhas e candidaturas aliadas do
+              estado em que você reside</strong>, para fins de mobilização política, comunicação
+              de eventos e ações de campanha. Esse compartilhamento se limita aos dados
+              necessários (como nome, telefone, e-mail, cidade e estado) e ocorre com base no
+              consentimento que você fornece ao preencher nossos formulários. Você pode revogar
+              esse consentimento a qualquer momento pelos canais indicados no item 8.
+            </p>
           </Bloco>
 
           <Bloco titulo="6. Por quanto tempo guardamos">
@@ -130,7 +139,18 @@ function Lgpd() {
             </p>
           </Bloco>
 
-          <Bloco titulo="9. Alterações desta política">
+          <Bloco titulo="9. Cookies">
+            <p>
+              Usamos cookies essenciais, necessários para o funcionamento do site (por exemplo,
+              para manter o acesso à área administrativa). Cookies opcionais, como os de medição
+              de audiência, só são usados se você clicar em <strong>Aceitar</strong> no aviso
+              exibido na primeira visita. Se escolher <strong>Só essenciais</strong>, apenas
+              os cookies necessários serão usados. Para mudar sua escolha, limpe os dados do
+              site no seu navegador e o aviso aparecerá novamente.
+            </p>
+          </Bloco>
+
+          <Bloco titulo="10. Alterações desta política">
             <p>
               Esta política pode ser atualizada a qualquer momento. A data da última revisão
               estará sempre indicada no topo desta página.

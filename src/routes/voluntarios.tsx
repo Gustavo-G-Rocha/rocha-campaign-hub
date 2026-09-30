@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { createVolunteer } from "@/lib/campaign.functions";
+import { ConsentCheckbox } from "@/components/consent-checkbox";
 
 export const Route = createFileRoute("/voluntarios")({
   head: () => ({
@@ -40,6 +41,7 @@ function Voluntarios() {
     try {
       const res = await submit({
         data: {
+          consentimento: fd.get("consentimento") === "on",
           nome: String(fd.get("nome") || ""),
           telefone: String(fd.get("telefone") || ""),
           email: String(fd.get("email") || ""),
@@ -108,6 +110,7 @@ function Voluntarios() {
             <Label htmlFor="mensagem">Como quer ajudar?</Label>
             <Textarea id="mensagem" name="mensagem" rows={4} placeholder="Conte um pouco sobre você" />
           </div>
+          <ConsentCheckbox />
           <Button
             type="submit"
             disabled={loading}

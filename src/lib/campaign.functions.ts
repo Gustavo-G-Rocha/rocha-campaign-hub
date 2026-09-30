@@ -59,10 +59,17 @@ const demoPetitions: PetitionItem[] = [
   },
 ];
 
+// Caixinha "Li e concordo" obrigatória em todos os formulários públicos.
+// O horário do aceite fica em `consentimento_em` (DEFAULT now() no banco).
+const consentimento = z.literal(true, {
+  message: "É preciso concordar com a Política de Privacidade",
+});
+
 // ----------------------------------------------------------------
 // Voluntários
 // ----------------------------------------------------------------
 const volunteerSchema = z.object({
+  consentimento,
   nome: z.string().min(2, "Informe seu nome"),
   telefone: z.string().min(8, "Informe um telefone válido"),
   email: z.string().email("E-mail inválido").optional().or(z.literal("")),
@@ -128,6 +135,7 @@ export const getEventBySlug = createServerFn({ method: "GET" })
   });
 
 const registerSchema = z.object({
+  consentimento,
   slug: z.string().min(1),
   nome: z.string().min(2, "Informe seu nome"),
   cidade: z.string().min(2, "Informe sua cidade"),
@@ -198,6 +206,7 @@ export const getPetitionBySlug = createServerFn({ method: "GET" })
   });
 
 const signSchema = z.object({
+  consentimento,
   slug: z.string().min(1),
   nome: z.string().min(2, "Informe seu nome"),
   cidade: z.string().min(2, "Informe sua cidade"),

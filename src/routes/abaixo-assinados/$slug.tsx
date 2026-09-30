@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { brStates } from "@/lib/br-states";
 import { getPetitionBySlug, signPetition } from "@/lib/campaign.functions";
+import { ConsentCheckbox } from "@/components/consent-checkbox";
 
 function petitionQuery(slug: string) {
   return queryOptions({
@@ -63,6 +64,7 @@ function PetitionPage() {
     try {
       const res = await sign({
         data: {
+          consentimento: fd.get("consentimento") === "on",
           slug,
           nome: String(fd.get("nome") || ""),
           cidade: String(fd.get("cidade") || ""),
@@ -152,6 +154,7 @@ function PetitionPage() {
                 <Label htmlFor="telefone">Telefone / WhatsApp *</Label>
                 <Input id="telefone" name="telefone" required placeholder="(41) 99999-9999" />
               </div>
+              <ConsentCheckbox />
               <Button
                 type="submit"
                 disabled={loading || !estado}

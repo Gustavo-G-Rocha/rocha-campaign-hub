@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as EventosIndexRouteImport } from './routes/eventos/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AbaixoAssinadosIndexRouteImport } from './routes/abaixo-assinados/index'
+import { Route as ImagensIdRouteImport } from './routes/imagens/$id'
 import { Route as EventosSlugRouteImport } from './routes/eventos/$slug'
 import { Route as AbaixoAssinadosSlugRouteImport } from './routes/abaixo-assinados/$slug'
 
@@ -60,6 +61,11 @@ const AbaixoAssinadosIndexRoute = AbaixoAssinadosIndexRouteImport.update({
   path: '/abaixo-assinados/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ImagensIdRoute = ImagensIdRouteImport.update({
+  id: '/imagens/$id',
+  path: '/imagens/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EventosSlugRoute = EventosSlugRouteImport.update({
   id: '/eventos/$slug',
   path: '/eventos/$slug',
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/voluntarios': typeof VoluntariosRoute
   '/abaixo-assinados/$slug': typeof AbaixoAssinadosSlugRoute
   '/eventos/$slug': typeof EventosSlugRoute
+  '/imagens/$id': typeof ImagensIdRoute
   '/abaixo-assinados/': typeof AbaixoAssinadosIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/eventos/': typeof EventosIndexRoute
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/voluntarios': typeof VoluntariosRoute
   '/abaixo-assinados/$slug': typeof AbaixoAssinadosSlugRoute
   '/eventos/$slug': typeof EventosSlugRoute
+  '/imagens/$id': typeof ImagensIdRoute
   '/abaixo-assinados': typeof AbaixoAssinadosIndexRoute
   '/admin': typeof AdminIndexRoute
   '/eventos': typeof EventosIndexRoute
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/voluntarios': typeof VoluntariosRoute
   '/abaixo-assinados/$slug': typeof AbaixoAssinadosSlugRoute
   '/eventos/$slug': typeof EventosSlugRoute
+  '/imagens/$id': typeof ImagensIdRoute
   '/abaixo-assinados/': typeof AbaixoAssinadosIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/eventos/': typeof EventosIndexRoute
@@ -118,6 +127,7 @@ export interface FileRouteTypes {
     | '/voluntarios'
     | '/abaixo-assinados/$slug'
     | '/eventos/$slug'
+    | '/imagens/$id'
     | '/abaixo-assinados/'
     | '/admin/'
     | '/eventos/'
@@ -130,6 +140,7 @@ export interface FileRouteTypes {
     | '/voluntarios'
     | '/abaixo-assinados/$slug'
     | '/eventos/$slug'
+    | '/imagens/$id'
     | '/abaixo-assinados'
     | '/admin'
     | '/eventos'
@@ -142,6 +153,7 @@ export interface FileRouteTypes {
     | '/voluntarios'
     | '/abaixo-assinados/$slug'
     | '/eventos/$slug'
+    | '/imagens/$id'
     | '/abaixo-assinados/'
     | '/admin/'
     | '/eventos/'
@@ -155,6 +167,7 @@ export interface RootRouteChildren {
   VoluntariosRoute: typeof VoluntariosRoute
   AbaixoAssinadosSlugRoute: typeof AbaixoAssinadosSlugRoute
   EventosSlugRoute: typeof EventosSlugRoute
+  ImagensIdRoute: typeof ImagensIdRoute
   AbaixoAssinadosIndexRoute: typeof AbaixoAssinadosIndexRoute
   AdminIndexRoute: typeof AdminIndexRoute
   EventosIndexRoute: typeof EventosIndexRoute
@@ -218,6 +231,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AbaixoAssinadosIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/imagens/$id': {
+      id: '/imagens/$id'
+      path: '/imagens/$id'
+      fullPath: '/imagens/$id'
+      preLoaderRoute: typeof ImagensIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/eventos/$slug': {
       id: '/eventos/$slug'
       path: '/eventos/$slug'
@@ -243,6 +263,7 @@ const rootRouteChildren: RootRouteChildren = {
   VoluntariosRoute: VoluntariosRoute,
   AbaixoAssinadosSlugRoute: AbaixoAssinadosSlugRoute,
   EventosSlugRoute: EventosSlugRoute,
+  ImagensIdRoute: ImagensIdRoute,
   AbaixoAssinadosIndexRoute: AbaixoAssinadosIndexRoute,
   AdminIndexRoute: AdminIndexRoute,
   EventosIndexRoute: EventosIndexRoute,

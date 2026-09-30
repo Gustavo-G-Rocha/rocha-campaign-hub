@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { brStates } from "@/lib/br-states";
 import { getEventBySlug, registerEvent } from "@/lib/campaign.functions";
+import { ConsentCheckbox } from "@/components/consent-checkbox";
 
 function eventQuery(slug: string) {
   return queryOptions({
@@ -75,6 +76,7 @@ function EventPage() {
     try {
       const res = await register({
         data: {
+          consentimento: fd.get("consentimento") === "on",
           slug,
           nome: String(fd.get("nome") || ""),
           cidade: String(fd.get("cidade") || ""),
@@ -184,6 +186,7 @@ function EventPage() {
                 <Label htmlFor="telefone">Telefone / WhatsApp *</Label>
                 <Input id="telefone" name="telefone" required placeholder="(41) 99999-9999" />
               </div>
+              <ConsentCheckbox />
               <Button
                 type="submit"
                 disabled={loading || !estado}

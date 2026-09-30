@@ -36,6 +36,7 @@ export type VolunteerRow = {
   bairro: string | null;
   mensagem: string | null;
   created_at: string;
+  consentimento_em: string;
 };
 
 export type PersonRow = {
@@ -45,6 +46,7 @@ export type PersonRow = {
   estado: string;
   telefone: string;
   created_at: string;
+  consentimento_em: string;
 };
 
 const noDb = { ok: false as const, error: "DATABASE_URL não configurada neste ambiente." };
@@ -117,6 +119,58 @@ async function uniqueSlug(
 }
 
 // ----------------------------------------------------------------
+// Imagens enviadas pelo painel
+// ----------------------------------------------------------------
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+
+// Imagem enviada pelo navegador como data URL (ex.: "data:image/webp;base64,...").
+const imageSchema = z
+  .string()
+  .regex(/^data:image\/(webp|jpeg|png|gif);base64,[A-Za-z0-9+/=]+$/, "Imagem inválida")
+  .optional()
+  .or(z.literal(""));
+
+// Grava a imagem no banco e devolve a URL pública (/imagens/<id>).
+async function saveImage(
+  sql: NonNullable<Awaited<ReturnType<typeof adminDb>>>,
+  dataUrl: string | undefined,
+): Promise<string | null> {
+  if (!dataUrl) return null;
+  const [header, base64] = dataUrl.split(",", 2);
+  const mime = header.slice("data:".length, header.indexOf(";"));
+  const bytes = Buffer.from(base64, "base64");
+  if (bytes.length > MAX_IMAGE_BYTES) {
+    throw new Error("Imagem muito grande (máximo 5 MB).");
+  }
+  const [row] = await sql<{ id: number }[]>`
+    INSERT INTO images (mime, data) VALUES (${mime}, ${bytes}) RETURNING id
+  `;
+  return `/imagens/${row.id}`;
+}
+
+// Na edição: "" remove a imagem, um data URL troca por uma nova e qualquer
+// outro valor mantém a imagem atual. Devolve a URL a gravar.
+async function replaceImage(
+  sql: NonNullable<Awaited<ReturnType<typeof adminDb>>>,
+  current: string | null,
+  imagem: string,
+): Promise<string | null> {
+  if (imagem && !imagem.startsWith("data:")) return current;
+  const next = await saveImage(sql, imagem);
+  await deleteImage(sql, current);
+  return next;
+}
+
+// Apaga a imagem enviada pelo painel, se a URL apontar para uma.
+async function deleteImage(
+  sql: NonNullable<Awaited<ReturnType<typeof adminDb>>>,
+  url: string | null | undefined,
+) {
+  const match = url?.match(/^\/imagens\/(\d+)$/);
+  if (match) await sql`DELETE FROM images WHERE id = ${Number(match[1])}`;
+}
+
+// ----------------------------------------------------------------
 // Visão geral
 // ----------------------------------------------------------------
 export const adminSummary = createServerFn({ method: "GET" }).handler(async () => {
@@ -174,7 +228,7 @@ const createEventSchema = z.object({
   local: z.string().optional().or(z.literal("")),
   cidade: z.string().optional().or(z.literal("")),
   data_evento: z.string().min(4, "Informe a data e a hora"),
-  imagem_url: z.string().optional().or(z.literal("")),
+  imagem: imageSchema,
   slug: z.string().optional().or(z.literal("")),
 });
 
@@ -190,22 +244,60 @@ export const adminCreateEvent = createServerFn({ method: "POST" })
     }
 
     const slug = await uniqueSlug(sql, "events", data.slug || data.titulo);
+    const imagemUrl = await saveImage(sql, data.imagem);
     await sql`
       INSERT INTO events (slug, titulo, descricao, local, cidade, data_evento, imagem_url)
       VALUES (${slug}, ${data.titulo}, ${data.descricao || null}, ${data.local || null},
-              ${data.cidade || null}, ${dataEvento}, ${data.imagem_url || null})
+              ${data.cidade || null}, ${dataEvento}, ${imagemUrl})
     `;
     return { ok: true as const, slug };
   });
 
 const idSchema = z.object({ id: z.number().int().positive() });
 
+// Na edição a imagem pode ser um data URL novo, "" (remover) ou a URL atual (manter).
+const editImageSchema = z.union([imageSchema, z.string().regex(/^\/[\w./-]+$/)]);
+
+const updateEventSchema = createEventSchema
+  .omit({ slug: true, imagem: true })
+  .extend({ id: z.number().int().positive(), imagem: editImageSchema });
+
+export const adminUpdateEvent = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => updateEventSchema.parse(data))
+  .handler(async ({ data }) => {
+    const sql = await adminDb();
+    if (!sql) return noDb;
+
+    const dataEvento = new Date(data.data_evento);
+    if (Number.isNaN(dataEvento.getTime())) {
+      return { ok: false as const, error: "Data inválida." };
+    }
+
+    const [current] = await sql<{ imagem_url: string | null }[]>`
+      SELECT imagem_url FROM events WHERE id = ${data.id}
+    `;
+    if (!current) return { ok: false as const, error: "Evento não encontrado." };
+
+    const imagemUrl = await replaceImage(sql, current.imagem_url, data.imagem ?? "");
+    await sql`
+      UPDATE events
+      SET titulo = ${data.titulo}, descricao = ${data.descricao || null},
+          local = ${data.local || null}, cidade = ${data.cidade || null},
+          data_evento = ${dataEvento}, imagem_url = ${imagemUrl}
+      WHERE id = ${data.id}
+    `;
+    return { ok: true as const };
+  });
+
 export const adminDeleteEvent = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => idSchema.parse(data))
   .handler(async ({ data }) => {
     const sql = await adminDb();
     if (!sql) return noDb;
-    await sql`DELETE FROM events WHERE id = ${data.id}`;
+    const [row] = await sql<{ imagem_url: string | null }[]>`
+      DELETE FROM events WHERE id = ${data.id} RETURNING imagem_url
+    `;
+    await deleteImage(sql, row?.imagem_url);
     return { ok: true as const };
   });
 
@@ -215,12 +307,16 @@ export const adminEventRegistrations = createServerFn({ method: "GET" })
     const sql = await adminDb();
     if (!sql) return [];
     const rows = await sql<PersonRow[]>`
-      SELECT id, nome, cidade, estado, telefone, created_at
+      SELECT id, nome, cidade, estado, telefone, created_at, consentimento_em
       FROM event_registrations
       WHERE event_id = ${data.id}
       ORDER BY created_at DESC
     `;
-    return rows.map((r) => ({ ...r, created_at: new Date(r.created_at).toISOString() }));
+    return rows.map((r) => ({
+      ...r,
+      created_at: new Date(r.created_at).toISOString(),
+      consentimento_em: new Date(r.consentimento_em).toISOString(),
+    }));
   });
 
 // ----------------------------------------------------------------
@@ -245,7 +341,7 @@ const createPetitionSchema = z.object({
   titulo: z.string().min(3, "Informe o título"),
   descricao: z.string().min(3, "Informe a descrição"),
   meta: z.number().int().positive().max(1000000),
-  imagem_url: z.string().optional().or(z.literal("")),
+  imagem: imageSchema,
   slug: z.string().optional().or(z.literal("")),
 });
 
@@ -256,11 +352,37 @@ export const adminCreatePetition = createServerFn({ method: "POST" })
     if (!sql) return noDb;
 
     const slug = await uniqueSlug(sql, "petitions", data.slug || data.titulo);
+    const imagemUrl = await saveImage(sql, data.imagem);
     await sql`
       INSERT INTO petitions (slug, titulo, descricao, meta, imagem_url)
-      VALUES (${slug}, ${data.titulo}, ${data.descricao}, ${data.meta}, ${data.imagem_url || null})
+      VALUES (${slug}, ${data.titulo}, ${data.descricao}, ${data.meta}, ${imagemUrl})
     `;
     return { ok: true as const, slug };
+  });
+
+const updatePetitionSchema = createPetitionSchema
+  .omit({ slug: true, imagem: true })
+  .extend({ id: z.number().int().positive(), imagem: editImageSchema });
+
+export const adminUpdatePetition = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => updatePetitionSchema.parse(data))
+  .handler(async ({ data }) => {
+    const sql = await adminDb();
+    if (!sql) return noDb;
+
+    const [current] = await sql<{ imagem_url: string | null }[]>`
+      SELECT imagem_url FROM petitions WHERE id = ${data.id}
+    `;
+    if (!current) return { ok: false as const, error: "Abaixo-assinado não encontrado." };
+
+    const imagemUrl = await replaceImage(sql, current.imagem_url, data.imagem ?? "");
+    await sql`
+      UPDATE petitions
+      SET titulo = ${data.titulo}, descricao = ${data.descricao},
+          meta = ${data.meta}, imagem_url = ${imagemUrl}
+      WHERE id = ${data.id}
+    `;
+    return { ok: true as const };
   });
 
 export const adminDeletePetition = createServerFn({ method: "POST" })
@@ -268,7 +390,10 @@ export const adminDeletePetition = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const sql = await adminDb();
     if (!sql) return noDb;
-    await sql`DELETE FROM petitions WHERE id = ${data.id}`;
+    const [row] = await sql<{ imagem_url: string | null }[]>`
+      DELETE FROM petitions WHERE id = ${data.id} RETURNING imagem_url
+    `;
+    await deleteImage(sql, row?.imagem_url);
     return { ok: true as const };
   });
 
@@ -289,12 +414,16 @@ export const adminPetitionSignatures = createServerFn({ method: "GET" })
     const sql = await adminDb();
     if (!sql) return [];
     const rows = await sql<PersonRow[]>`
-      SELECT id, nome, cidade, estado, telefone, created_at
+      SELECT id, nome, cidade, estado, telefone, created_at, consentimento_em
       FROM petition_signatures
       WHERE petition_id = ${data.id}
       ORDER BY created_at DESC
     `;
-    return rows.map((r) => ({ ...r, created_at: new Date(r.created_at).toISOString() }));
+    return rows.map((r) => ({
+      ...r,
+      created_at: new Date(r.created_at).toISOString(),
+      consentimento_em: new Date(r.consentimento_em).toISOString(),
+    }));
   });
 
 // ----------------------------------------------------------------
@@ -305,10 +434,14 @@ export const adminListVolunteers = createServerFn({ method: "GET" }).handler(
     const sql = await adminDb();
     if (!sql) return [];
     const rows = await sql<VolunteerRow[]>`
-      SELECT id, nome, email, telefone, cidade, bairro, mensagem, created_at
+      SELECT id, nome, email, telefone, cidade, bairro, mensagem, created_at, consentimento_em
       FROM volunteers
       ORDER BY created_at DESC
     `;
-    return rows.map((r) => ({ ...r, created_at: new Date(r.created_at).toISOString() }));
+    return rows.map((r) => ({
+      ...r,
+      created_at: new Date(r.created_at).toISOString(),
+      consentimento_em: new Date(r.consentimento_em).toISOString(),
+    }));
   },
 );
